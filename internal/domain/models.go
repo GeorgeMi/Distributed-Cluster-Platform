@@ -113,3 +113,14 @@ type User struct {
 	Role      string
 	TokenHash string
 }
+
+type Heartbeat struct {
+	NodeID            string
+	Address           string
+	TotalCPU          float64
+	UsedCPU           float64
+	TotalRAM          int64
+	UsedRAM           int64
+	ActiveConnections int
+	Containers        []string
+}
