@@ -1,0 +1,43 @@
+\chapter{Introduction}
+\label{cap:cap1}
+
+Running services reliably across multiple machines is a common challenge in modern software systems. When an application grows beyond what a single server can handle, it needs to be distributed across a cluster of nodes. This brings new problems: how do nodes discover each other, how are resources allocated, what happens when a node fails, and how do we keep the system secure.
+
+Large-scale platforms like Kubernetes solve these problems, but they come with significant complexity. For many use cases, a simpler solution is enough. This thesis proposes a distributed platform that addresses the core challenges of running services in a cluster, while keeping the architecture straightforward and easy to understand.
+
+\section{Objectives}
+
+The main objective of this thesis is to design and implement a distributed platform for running containerized services within a cluster. The platform addresses the following specific objectives:
+
+\begin{itemize}
+    \item \textbf{Automatic node discovery} -- worker nodes are discovered automatically by the master when they send their first heartbeat via UDP multicast. No explicit join or leave mechanism is needed.
+    \item \textbf{Resource pools} -- nodes are grouped into pools based on their hardware resources (CPU, RAM). Services can be deployed to a specific pool, ensuring they run on appropriate hardware.
+    \item \textbf{Load balancing} -- when deploying a service, the platform selects the best node using a pluggable load balancing strategy (Least Connections or Weighted).
+    \item \textbf{Fault tolerance} -- the platform detects node failures through heartbeat monitoring and automatically restarts affected containers on healthy nodes. A Raft consensus protocol ensures master node availability.
+    \item \textbf{Security} -- user authentication is handled through JWT tokens, and a role-based access control system (Admin, Writer, Reader) restricts what each user can do.
+    \item \textbf{Audit} -- all important actions are logged in an append-only audit log that can be queried through the API.
+\end{itemize}
+
+\section{Methodology and Tools}
+
+The platform is implemented in Go, chosen for its built-in concurrency support (goroutines), efficient networking, and suitability for systems programming. The main tools and libraries used are:
+
+\begin{itemize}
+    \item \textbf{Go} -- the programming language for both master and worker components
+    \item \textbf{Docker SDK} -- for managing containers on worker nodes
+    \item \textbf{HashiCorp Raft} -- for leader election and state replication between master nodes
+    \item \textbf{UDP multicast} -- for heartbeat communication between workers and master
+    \item \textbf{JWT (JSON Web Tokens)} -- for user authentication
+\end{itemize}
+
+\section{Thesis Structure}
+
+The thesis is organized into five chapters:
+
+\begin{itemize}
+    \item \textbf{Chapter 1 -- Introduction}: presents the context, objectives, and methodology.
+    \item \textbf{Chapter 2 -- Theoretical Background and Similar Solutions}: covers distributed systems concepts and compares existing platforms like Kubernetes and Docker Swarm.
+    \item \textbf{Chapter 3 -- Proposed Solution}: describes the architecture of the platform in detail, including component design, communication protocols, state machines, and security mechanisms.
+    \item \textbf{Chapter 4 -- Testing and Experimental Results}: presents the testing methodology and results obtained from running the platform.
+    \item \textbf{Chapter 5 -- Conclusions}: summarizes the results and discusses future improvements.
+\end{itemize}

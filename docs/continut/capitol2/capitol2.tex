@@ -1,0 +1,168 @@
+\chapter{Theoretical Background and Similar Solutions}
+\label{cap:cap2}
+
+This chapter presents the key concepts behind distributed systems and reviews existing platforms that solve similar problems. Understanding these concepts is important for explaining the design decisions made in the proposed solution.
+
+\section{Distributed Systems}
+
+A distributed system is a collection of independent computers that appear to the user as a single system \cite{book:tanenbaum:ds:2017}. The main challenges in distributed systems are:
+
+\begin{itemize}
+    \item \textbf{Partial failure} -- some nodes can fail while others continue to work. The system must handle this without stopping entirely.
+    \item \textbf{No global clock} -- each node has its own clock, and there is no single source of time for the entire system.
+    \item \textbf{Network unreliability} -- messages between nodes can be delayed, lost, or delivered out of order.
+\end{itemize}
+
+\subsection{Node Discovery and Heartbeats}
+
+In a cluster, nodes need to know about each other. There are two common approaches:
+
+\textbf{Static configuration} -- the list of nodes is defined in a configuration file. Simple, but does not support dynamic scaling.
+
+\textbf{Heartbeat-based discovery} -- each node periodically sends a small message (heartbeat) to announce that it is alive. If a node stops sending heartbeats, it is considered dead. This approach is used by systems like Consul \cite{misc:web:consul} and the proposed platform.
+
+Heartbeats can be sent via TCP (reliable, but more overhead) or UDP (lightweight, no connection setup). UDP multicast allows a single packet to reach multiple receivers at once, which is efficient when multiple master nodes need to receive heartbeats \cite{book:stevens:unp:2003}.
+
+\subsection{Consensus and Leader Election}
+
+When multiple master nodes need to agree on the state of the cluster, they use a consensus protocol. The most widely used consensus protocol in modern systems is \textbf{Raft} \cite{inproc:ongaro:raft:2014}.
+
+Raft works by electing a leader among the master nodes. The leader processes all write operations and replicates them to the followers. If the leader fails, the followers elect a new leader. Raft guarantees that:
+
+\begin{itemize}
+    \item Only one leader exists at any time.
+    \item All nodes agree on the same sequence of operations.
+    \item The system continues to work as long as a majority of nodes (quorum) are alive. For 3 nodes, the quorum is 2.
+\end{itemize}
+
+\subsection{Fault Tolerance}
+
+Fault tolerance is the ability of a system to continue operating when some of its components fail \cite{book:tanenbaum:ds:2017}. Common strategies include:
+
+\begin{itemize}
+    \item \textbf{Replication} -- running multiple copies of a service on different nodes. If one copy fails, others continue to serve requests.
+    \item \textbf{Health monitoring} -- periodically checking if nodes are alive (via heartbeats) and taking action when they are not.
+    \item \textbf{Automatic recovery} -- restarting failed services on healthy nodes without human intervention.
+\end{itemize}
+
+\subsection{Load Balancing}
+
+Load balancing distributes work across multiple nodes to avoid overloading any single node. Common strategies include:
+
+\begin{itemize}
+    \item \textbf{Round Robin} -- requests are distributed to nodes in a circular order.
+    \item \textbf{Least Connections} -- the node with the fewest active connections is chosen.
+    \item \textbf{Weighted} -- nodes with more available resources receive more work.
+\end{itemize}
+
+The proposed platform implements Least Connections and Weighted strategies with a pluggable interface, allowing new strategies to be added without modifying existing code.
+
+\subsection{Containerization}
+
+Containers are lightweight, isolated environments for running applications. Unlike virtual machines, containers share the host operating system kernel, which makes them faster to start and more efficient in resource usage \cite{misc:web:docker:overview}.
+
+Docker is the most widely used container runtime. It provides an API for creating, starting, stopping, and removing containers. The proposed platform uses the Docker SDK to manage containers on worker nodes.
+
+\section{Similar Solutions}
+
+Several platforms exist for running containerized services in a cluster. This section compares the most relevant ones with the proposed solution.
+
+\subsection{Kubernetes}
+
+Kubernetes \cite{misc:web:kubernetes} is the industry standard for container orchestration. It was originally developed by Google and is now maintained by the Cloud Native Computing Foundation (CNCF).
+
+Key features:
+\begin{itemize}
+    \item Automatic scheduling and scaling of containers
+    \item Self-healing: restarts failed containers, replaces nodes
+    \item Service discovery and load balancing
+    \item Configuration management and secrets
+    \item Extensible through custom resources and operators
+\end{itemize}
+
+Kubernetes uses \texttt{etcd} (a distributed key-value store based on Raft) for cluster state, and \texttt{kubelet} agents on each node for container management.
+
+\textbf{Comparison with the proposed platform:} Kubernetes is a full production platform with hundreds of features. The proposed platform focuses on the core mechanisms (heartbeats, scheduling, fault tolerance, security) and implements them from scratch, providing a clear and simple architecture that is easier to understand and extend. Kubernetes is designed for large-scale production use, while the proposed platform is designed for educational purposes and smaller deployments.
+
+\subsection{Docker Swarm}
+
+Docker Swarm \cite{misc:web:docker:swarm} is Docker's built-in orchestration tool. It is simpler than Kubernetes and integrates directly with the Docker CLI.
+
+Key features:
+\begin{itemize}
+    \item Uses the standard Docker API
+    \item Built-in service discovery
+    \item Load balancing via ingress routing
+    \item Raft consensus for manager nodes
+    \item TLS encryption for node communication
+\end{itemize}
+
+\textbf{Comparison with the proposed platform:} Docker Swarm is closer in simplicity to the proposed platform. Both use Raft for consensus and Docker for container management. The main differences are that the proposed platform uses UDP multicast for heartbeats (instead of TCP), does not require TLS for internal communication (trusted network assumption), and implements auto-join via heartbeats instead of explicit join tokens.
+
+\subsection{HashiCorp Nomad}
+
+Nomad \cite{misc:web:nomad} is a workload orchestrator developed by HashiCorp. Unlike Kubernetes, it can manage not only containers but also standalone applications, Java services, and batch jobs.
+
+Key features:
+\begin{itemize}
+    \item Single binary, easy to deploy
+    \item Multi-datacenter support
+    \item Integrates with Consul for service discovery and Vault for secrets
+    \item Uses Raft for consensus
+\end{itemize}
+
+\textbf{Comparison with the proposed platform:} Nomad shares the philosophy of simplicity. Both use Raft for consensus and a master-worker architecture. The proposed platform is more focused -- it only manages Docker containers and implements all components (discovery, scheduling, security) in a single system, without external dependencies like Consul or Vault.
+
+\section{Summary of Comparison}
+
+Table \ref{tab:comparison} summarizes the key differences between the existing solutions and the proposed platform.
+
+\begin{table}[H]
+    \centering
+    \caption{Comparison of existing solutions with the proposed platform}
+    \label{tab:comparison}
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{Feature} & \textbf{Kubernetes} & \textbf{Swarm} & \textbf{Nomad} & \textbf{Proposed} \\
+        \hline
+        Consensus & etcd (Raft) & Raft & Raft & Raft \\
+        \hline
+        Node discovery & kubelet & join token & Consul & heartbeat \\
+        \hline
+        Heartbeat protocol & TCP & TCP & TCP & UDP multicast \\
+        \hline
+        Container runtime & multiple & Docker & multiple & Docker \\
+        \hline
+        Internal encryption & optional & TLS & TLS & none (trusted) \\
+        \hline
+        Complexity & very high & medium & medium & low \\
+        \hline
+        Load balancing & yes & yes & no (external) & yes \\
+        \hline
+        RBAC & yes & limited & yes & yes \\
+        \hline
+        Audit log & yes & no & yes & yes \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Expected Characteristics}
+
+Based on the analysis of existing solutions and the identified gaps, the proposed platform should meet the following requirements:
+
+\begin{itemize}
+    \item \textbf{Automatic node discovery} -- worker nodes should be detected automatically when they start, without manual configuration or explicit join commands.
+    \item \textbf{Failure detection within 30 seconds} -- the system should detect a dead node within 30 seconds of the last heartbeat and begin container recovery immediately.
+    \item \textbf{Container recovery without data loss} -- when a node dies, all service parameters (image, environment variables, ports, command) should be preserved in the cluster state, allowing containers to be restarted identically on healthy nodes.
+    \item \textbf{Pluggable load balancing} -- the load balancing strategy should be interchangeable without modifying the rest of the code.
+    \item \textbf{Role-based access control} -- the platform should support at least three roles (Admin, Writer, Reader) with clearly separated permissions.
+    \item \textbf{Audit trail} -- all important actions should be logged in an append-only log that can be queried through the API.
+    \item \textbf{High availability} -- the master should be replicated across at least 3 nodes using Raft consensus, tolerating the failure of 1 master node.
+    \item \textbf{Low complexity} -- the platform should be simple enough to understand, deploy, and extend, unlike production platforms such as Kubernetes.
+\end{itemize}
+
+\section{Conclusions}
+
+The existing platforms are mature and feature-rich, but they come with significant complexity. Kubernetes, in particular, has a steep learning curve and requires extensive infrastructure to run.
+
+The proposed platform fills a gap by implementing the core distributed systems mechanisms (heartbeat-based discovery, Raft consensus, pluggable load balancing, role-based security, and audit logging) in a simple, understandable way. It is not meant to replace Kubernetes or Docker Swarm in production, but to serve as a clear implementation of the fundamental concepts, suitable for educational use and smaller deployments.

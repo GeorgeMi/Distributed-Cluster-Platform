@@ -1,0 +1,54 @@
+\babel@toc {romanian}{}\relax 
+\babel@toc {romanian}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Objectives}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Methodology and Tools}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Thesis Structure}{2}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Theoretical Background and Similar Solutions}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Distributed Systems}{3}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Node Discovery and Heartbeats}{3}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Consensus and Leader Election}{3}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Fault Tolerance}{3}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}Load Balancing}{4}{subsection.2.1.4}%
+\contentsline {subsection}{\numberline {2.1.5}Containerization}{4}{subsection.2.1.5}%
+\contentsline {section}{\numberline {2.2}Similar Solutions}{4}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Kubernetes}{4}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Docker Swarm}{5}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}HashiCorp Nomad}{5}{subsection.2.2.3}%
+\contentsline {section}{\numberline {2.3}Summary of Comparison}{5}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Expected Characteristics}{6}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Conclusions}{6}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Proposed Solution}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Technology Choices}{7}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Component Overview}{7}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Master Node}{8}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Worker Node}{9}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Communication}{9}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Domain Model}{9}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Heartbeat and Node Discovery}{10}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Auto-Join}{10}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Heartbeat Loop}{10}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Node Removal}{11}{subsection.3.4.3}%
+\contentsline {section}{\numberline {3.5}Fault Tolerance -- Detection and Recovery}{11}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Failure Detection}{12}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Container Recovery}{12}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Split-Brain Prevention}{12}{subsection.3.5.3}%
+\contentsline {section}{\numberline {3.6}Worker Node -- State Machine}{13}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Implementation}{14}{section.3.7}%
+\contentsline {chapter}{\numberline {4}Testarea aplicației și rezultate experimentale}{15}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Nivel 1}{15}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Nivel 2}{16}{subsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.1.1}Nivel 3}{16}{subsubsection.4.1.1.1}%
+\contentsline {chapter}{\numberline {5}Concluzii}{21}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Direcții viitoare de dezvoltare}{21}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Lecții învățate pe parcursul dezvoltării proiectului de diplomă}{22}{section.5.2}%
+\contentsline {chapter}{Bibliografie}{23}{chapter*.12}%
+\contentsline {chapter}{Anexe}{25}{chapter*.13}%
+\contentsline {section}{\numberline {1}Componente Software}{25}{section.0.1}%
+\contentsline {section}{\numberline {2}Componente Hardware}{26}{section.0.2}%
+\contentsline {section}{\numberline {3}Codul funcției xyz()}{27}{section.0.3}%
+\contentsline {section}{\numberline {4}Tabel lung pe mai multe pagini}{29}{section.0.4}%
+\contentsline {section}{\numberline {5}Tabel simplu}{31}{section.0.5}%
+\contentsline {section}{\numberline {6}Cod în python}{32}{section.0.6}%
+\contentsline {section}{\numberline {7}Cod în Kotlin (mai lung de o pagină)}{33}{section.0.7}%
+\contentsline {section}{\numberline {8}Cod în XML (preluat din fisier)}{35}{section.0.8}%
