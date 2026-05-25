@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.7)  14 MAY 2026 09:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.7)  21 MAY 2026 08:25
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1429,7 +1429,25 @@ Underfull \vbox (badness 2644) has occurred while \output is active []
 
  [12]
 [13 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
-/figuri/worker_state_machine.png>]) [14]
+/figuri/worker_state_machine.png>]
+<continut/capitol3/figuri/deployment_flow.png, id=451, 778.91pt x 603.25375pt>
+File: continut/capitol3/figuri/deployment_flow.png Graphic file (type png)
+<use continut/capitol3/figuri/deployment_flow.png>
+Package pdftex.def Info: continut/capitol3/figuri/deployment_flow.png  used on 
+input line 228.
+(pdftex.def)             Requested size: 483.69687pt x 374.61177pt.
+ [14 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
+3/figuri/deployment_flow.png>]
+<continut/capitol3/figuri/container_state_machine.png, id=459, 827.09pt x 534.9
+9875pt>
+File: continut/capitol3/figuri/container_state_machine.png Graphic file (type p
+ng)
+<use continut/capitol3/figuri/container_state_machine.png>
+Package pdftex.def Info: continut/capitol3/figuri/container_state_machine.png  
+used on input line 260.
+(pdftex.def)             Requested size: 483.69687pt x 312.87912pt.
+ [15 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
+3/figuri/container_state_machine.png>]) [16]
 (/Users/george/projects/distributed_cluster_platform/docs/continut/capitol4/cap
 itol4.tex
 Capitolul 4.
@@ -1437,11 +1455,11 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1.
-[15
+[17
 
 
 ]
-<continut/capitol4/figuri/clone_trooper.png, id=461, 548.0475pt x 920.43875pt>
+<continut/capitol4/figuri/clone_trooper.png, id=485, 548.0475pt x 920.43875pt>
 File: continut/capitol4/figuri/clone_trooper.png Graphic file (type png)
 <use continut/capitol4/figuri/clone_trooper.png>
 Package pdftex.def Info: continut/capitol4/figuri/clone_trooper.png  used on in
@@ -1451,54 +1469,54 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 24.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 27.
- [16 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
+ [18 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
 4/figuri/clone_trooper.png>]
 Underfull \vbox (badness 2005) has occurred while \output is active []
 
 
 Underfull \vbox (badness 2005) has occurred while \output is active []
 
- [17]
+ [19]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [18])
-[19] [20
+ [20])
+[21] [22
 
 ]
 (/Users/george/projects/distributed_cluster_platform/docs/continut/capitol5/cap
 itol5.tex
 Capitolul 5.
-[21
-
-]) [22] (/Users/george/projects/distributed_cluster_platform/docs/main.bbl)
 [23
 
+]) [24] (/Users/george/projects/distributed_cluster_platform/docs/main.bbl)
+[25
 
-] [24
+
+] [26
 
 ]
 (/Users/george/projects/distributed_cluster_platform/docs/macros/config_anexe.t
 ex) (/Users/george/projects/distributed_cluster_platform/docs/anexe/anexe.tex
-[25
+[27
 
-] [26]
-<anexe/figuri/AT.png, id=524, 481.8pt x 361.35pt>
+] [28]
+<anexe/figuri/AT.png, id=552, 481.8pt x 361.35pt>
 File: anexe/figuri/AT.png Graphic file (type png)
 <use anexe/figuri/AT.png>
 Package pdftex.def Info: anexe/figuri/AT.png  used on input line 41.
 (pdftex.def)             Requested size: 241.84843pt x 181.38583pt.
- [27 </Users/george/projects/distributed_cluster_platform/docs/anexe/figuri/AT.
+ [29 </Users/george/projects/distributed_cluster_platform/docs/anexe/figuri/AT.
 png>]
-<anexe/figuri/millennium_falcon.jpeg, id=536, 144.54pt x 102.1416pt>
+<anexe/figuri/millennium_falcon.jpeg, id=565, 144.54pt x 102.1416pt>
 File: anexe/figuri/millennium_falcon.jpeg Graphic file (type jpg)
 <use anexe/figuri/millennium_falcon.jpeg>
 Package pdftex.def Info: anexe/figuri/millennium_falcon.jpeg  used on input lin
 e 51.
 (pdftex.def)             Requested size: 386.95897pt x 273.46686pt.
- [28 </Users/george/projects/distributed_cluster_platform/docs/anexe/figuri/mil
+ [30 </Users/george/projects/distributed_cluster_platform/docs/anexe/figuri/mil
 lennium_falcon.jpeg>]
 Underfull \hbox (badness 3690) in paragraph at lines 89--89
 \T1/ptm/m/n/12 sau pro-grame le-gi-time. Ma-jo-ri-ta-tea
@@ -1520,17 +1538,17 @@ Underfull \hbox (badness 1533) in paragraph at lines 135--135
  []
 
 
-ignored: Infinite glue shrinkage found in box being split [29] [30] [31]
+ignored: Infinite glue shrinkage found in box being split [31] [32] [33]
 \pydata@fh@0=\write7
 \openout7 = `_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted'.
 
-runsystem(latexminted config  --timestamp 20260514094538 FAD58DE7366495DB4650CF
+runsystem(latexminted config  --timestamp 20260521082505 FAD58DE7366495DB4650CF
 EFAC2FCD61)...executed safely (allowed).
 
 
 (/Users/george/projects/distributed_cluster_platform/docs/_FAD58DE7366495DB4650
 CFEFAC2FCD61.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20260514094538 FAD58DE7366495DB4
+runsystem(latexminted cleanconfig  --timestamp 20260521082505 FAD58DE7366495DB4
 650CFEFAC2FCD61)...executed safely (allowed).
 
 
@@ -1549,7 +1567,7 @@ LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <10.95> not available
 )
 Package hyperref Info: bookmark level for unknown listing defaults to 0 on inpu
 t line 208.
- [32]
+ [34]
 (/Users/george/projects/distributed_cluster_platform/docs/_minted/3931C41E2F7F3
 2B7DC30C18AA45A4D2B.highlight.minted
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1557,8 +1575,8 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [33])
-[34]
+ [35])
+[36]
 (/Users/george/projects/distributed_cluster_platform/docs/_minted/87C16E227D749
 AFFB8F7526A367FBE71.highlight.minted
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1566,38 +1584,72 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [35]))
-[36] (/Users/george/projects/distributed_cluster_platform/docs/main.aux)
+ [37]))
+[38] (/Users/george/projects/distributed_cluster_platform/docs/main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
-Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 62855A0C5E54BEC4BC71212B41902E4D;8276.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `main.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `main.out':
+(rerunfilecheck)             Before: 62855A0C5E54BEC4BC71212B41902E4D;8276
+(rerunfilecheck)             After:  E6ED44186A57BB6AD8CBCAC15A199C71;8984.
  ) 
 Here is how much of TeX's memory you used:
- 32917 strings out of 467525
- 652207 string characters out of 5418983
+ 32955 strings out of 467525
+ 653307 string characters out of 5418983
  1261328 words of memory out of 5000000
- 61062 multiletter control sequences out of 15000+600000
+ 61080 multiletter control sequences out of 15000+600000
  741206 words of font info for 189 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  95i,18n,108p,664b,1349s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
-></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb><
-/usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></u
-sr/local/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/local
-/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive
-/2026/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/local/texlive/2026/t
-exmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2026/texmf-dist/
-fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/typ
-e1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/tim
-es/utmri8a.pfb>
+
+pdfTeX warning (dest): name{figure.caption.15} has been referenced but does not
+ exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.caption.14} has been referenced but does not
+ exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.caption.16} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.caption.11} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{chapter*.13} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{chapter*.12} has been referenced but does not exist
+, replaced by a fixed one
+
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><
+/usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></u
+sr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></usr
+/local/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/local/t
+exlive/2026/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2
+026/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/local/texlive/2026/tex
+mf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2026/texmf-dist/fo
+nts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1
+/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times
+/utmri8a.pfb>
 Output written on /Users/george/projects/distributed_cluster_platform/docs/main
-.pdf (46 pages, 1390200 bytes).
+.pdf (48 pages, 1557498 bytes).
 PDF statistics:
- 664 PDF objects out of 1000 (max. 8388607)
- 561 compressed objects within 6 object streams
- 125 named destinations out of 1000 (max. 500000)
- 494 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 699 PDF objects out of 1000 (max. 8388607)
+ 590 compressed objects within 6 object streams
+ 145 named destinations out of 1000 (max. 500000)
+ 504 words of extra memory for PDF output out of 10000 (max. 10000000)
 

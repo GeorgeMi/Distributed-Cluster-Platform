@@ -203,14 +203,86 @@ The transitions between states are:
     \item Containers rescheduled $\rightarrow$ REMOVED
 \end{itemize}
 
+\section{Load Balancer}
+
+The Load Balancer selects the best node from a list of candidates. It is defined as a Go interface with a single method:
+
+\begin{verbatim}
+type LoadBalancer interface {
+    SelectNode(candidates []*Node, service *Service) *Node
+}
+\end{verbatim}
+
+This design allows the load balancing strategy to be swapped without modifying the rest of the code. The platform provides two implementations:
+
+\textbf{LeastConnectionsLB} picks the node with the fewest running containers. It iterates through the candidate list and selects the node with the smallest container count. This strategy works well when all containers have similar resource requirements.
+
+\textbf{WeightedLB} picks the node with the most available resources. It calculates a score for each node based on available CPU and available RAM (converted to CPU-equivalent units), and selects the node with the highest score. This strategy is better when containers have varying resource needs.
+
+The master can be started with either strategy using the \texttt{-lb} flag: \texttt{-lb leastconn} (default) or \texttt{-lb weighted}.
+
+\section{Service Deployment Flow}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{continut/capitol3/figuri/deployment_flow.png}
+    \caption{Service Deployment Flow}
+    \label{fig:deployment_flow}
+\end{figure}
+
+When a service needs to be deployed, the Scheduler and Load Balancer work together to find the best node. The Scheduler performs the following steps:
+
+\begin{enumerate}
+    \item Retrieves all nodes in the requested resource pool.
+    \item Filters out nodes that are not ALIVE or do not have enough CPU and RAM for the service.
+    \item Passes the candidate list to the Load Balancer.
+    \item The Load Balancer returns the best node.
+    \item A \texttt{StartContainer} command is sent to the selected node via TCP with the full service parameters (image, CPU limit, RAM limit, environment variables, ports, command).
+    \item The worker receives the command, starts the container, and returns the container ID.
+\end{enumerate}
+
+This same flow is used both for new deployments and for fault recovery (when containers need to be rescheduled after a node dies).
+
+\section{Agent -- Worker Command Server}
+
+Each worker runs a TCP command server that listens for commands from the master. The server accepts two types of commands:
+
+\textbf{StartContainer} -- the master sends the Docker image, resource limits, and service parameters. The worker starts a new container and returns the container ID.
+
+\textbf{KillContainers} -- the master sends this command during split-brain prevention. The worker stops all running containers.
+
+Commands are sent as JSON over TCP. The master uses the node's address (reported in heartbeats) to establish a connection, sends the command, and waits for a response. This communication is synchronous -- the master waits for the worker to confirm before proceeding.
+
+\section{Container -- State Machine}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{continut/capitol3/figuri/container_state_machine.png}
+    \caption{Container -- State Machine}
+    \label{fig:container_state_machine}
+\end{figure}
+
+A container goes through the following states:
+
+\begin{itemize}
+    \item \textbf{PENDING} -- the container needs to run, but no node has enough resources. It waits until resources become available.
+    \item \textbf{SCHEDULED} -- a node was found and the container has been assigned. Docker startup is in progress.
+    \item \textbf{RUNNING} -- Docker started the container successfully. This is the normal operating state.
+    \item \textbf{FAILED} -- Docker returned an error (invalid image, port conflict, out of memory). The system will retry on another node.
+    \item \textbf{RESCHEDULING} -- the host node died. A fresh container needs to be started on another node.
+    \item \textbf{STOPPED} -- the container was stopped intentionally (service deleted or scaled down). This is a final state.
+\end{itemize}
+
 \section{Implementation}
 
 The platform is structured as a single Go module with two binaries: \texttt{master} and \texttt{worker}. The following packages have been implemented:
 
 \begin{itemize}
     \item \texttt{internal/domain} -- data models (Node, Service, Container, ResourcePool, User, AuditEntry, Heartbeat)
-    \item \texttt{internal/cluster} -- in-memory cluster state with thread-safe CRUD operations for all entities, protected by \texttt{sync.RWMutex}
+    \item \texttt{internal/cluster} -- in-memory cluster state with thread-safe CRUD operations, protected by \texttt{sync.RWMutex}
     \item \texttt{internal/heartbeat} -- UDP multicast sender (worker) and receiver (master) with auto-join on first heartbeat
-    \item \texttt{internal/fault} -- fault tolerance: periodic health checks every 5 seconds, SUSPECT/DEAD detection, KillContainers for split-brain prevention
-    \item \texttt{internal/agent} -- system metrics monitor (CPU, RAM)
+    \item \texttt{internal/fault} -- fault tolerance: periodic health checks, SUSPECT/DEAD detection, KillContainers for split-brain prevention
+    \item \texttt{internal/loadbalancer} -- LoadBalancer interface with LeastConnections and Weighted implementations
+    \item \texttt{internal/scheduler} -- filters nodes by pool and resources, delegates to Load Balancer for node selection
+    \item \texttt{internal/agent} -- TCP command server (StartContainer, KillContainers), system metrics monitor (CPU, RAM), and command client for master-to-worker communication
 \end{itemize}

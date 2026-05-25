@@ -68,6 +68,7 @@ func (s *State) UpdateNodeMetrics(nodeID string, cpuUsed float64, ramUsed int64,
 	}
 	n.UsedCPU = cpuUsed
 	n.UsedRAM = ramUsed
+	n.ActiveConnections = activeConns
 	n.LastHeartbeat = time.Now()
 	n.Status = domain.NodeAlive
 	return nil

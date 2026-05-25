@@ -24,15 +24,16 @@ const (
 )
 
 type Node struct {
-	ID            string
-	Address       string
-	Status        string
-	TotalCPU      float64
-	UsedCPU       float64
-	TotalRAM      int64
-	UsedRAM       int64
-	LastHeartbeat time.Time
-	Containers    []Container
+	ID                string
+	Address           string
+	Status            string
+	TotalCPU          float64
+	UsedCPU           float64
+	TotalRAM          int64
+	UsedRAM           int64
+	ActiveConnections int
+	LastHeartbeat     time.Time
+	Containers        []Container
 }
 
 func (n *Node) IsAlive() bool {

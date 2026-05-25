@@ -15,7 +15,7 @@ import (
 
 func main() {
 	nodeID := flag.String("id", "", "node ID (required)")
-	addr := flag.String("addr", "localhost:7000", "node address")
+	addr := flag.String("addr", "localhost:7000", "node address for commands")
 	multicast := flag.String("multicast", "239.0.0.1:9090", "multicast address for heartbeats")
 	interval := flag.Duration("interval", 5*time.Second, "heartbeat interval")
 	flag.Parse()
@@ -27,6 +27,27 @@ func main() {
 
 	log.Printf("worker %s starting, address=%s, multicast=%s", *nodeID, *addr, *multicast)
 
+	// Command server - receives StartContainer/KillContainers from master
+	cmdServer := agent.NewCommandServer(*addr, func(cmd agent.Command) agent.CommandResponse {
+		switch cmd.Type {
+		case agent.CmdStartContainer:
+			log.Printf("worker: StartContainer image=%s service=%s", cmd.Image, cmd.ServiceID)
+			// TODO: integrate with Docker SDK
+			containerID := fmt.Sprintf("container-%s-%d", cmd.ServiceID, time.Now().UnixMilli())
+			return agent.CommandResponse{Success: true, ContainerID: containerID}
+
+		case agent.CmdKillContainers:
+			log.Printf("worker: KillContainers - stopping all containers")
+			// TODO: integrate with Docker SDK
+			return agent.CommandResponse{Success: true}
+
+		default:
+			return agent.CommandResponse{Success: false, Error: "unknown command: " + cmd.Type}
+		}
+	})
+	go cmdServer.Start()
+
+	// Heartbeat sender
 	sender := heartbeat.NewSender(
 		*multicast,
 		*nodeID,
@@ -36,17 +57,16 @@ func main() {
 			return agent.GetMetrics()
 		},
 		func() []string {
-			return nil // no containers yet
+			return nil // TODO: return running container IDs from Docker
 		},
 	)
-
 	go sender.Start()
 
-	// Wait for SIGINT/SIGTERM
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	<-sig
 
 	log.Println("worker shutting down")
 	sender.Stop()
+	cmdServer.Stop()
 }

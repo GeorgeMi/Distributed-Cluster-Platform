@@ -34,21 +34,25 @@
 \contentsline {subsection}{\numberline {3.5.2}Container Recovery}{12}{subsection.3.5.2}%
 \contentsline {subsection}{\numberline {3.5.3}Split-Brain Prevention}{12}{subsection.3.5.3}%
 \contentsline {section}{\numberline {3.6}Worker Node -- State Machine}{13}{section.3.6}%
-\contentsline {section}{\numberline {3.7}Implementation}{14}{section.3.7}%
-\contentsline {chapter}{\numberline {4}Testarea aplicației și rezultate experimentale}{15}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Nivel 1}{15}{section.4.1}%
-\contentsline {subsection}{\numberline {4.1.1}Nivel 2}{16}{subsection.4.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.1.1}Nivel 3}{16}{subsubsection.4.1.1.1}%
-\contentsline {chapter}{\numberline {5}Concluzii}{21}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Direcții viitoare de dezvoltare}{21}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Lecții învățate pe parcursul dezvoltării proiectului de diplomă}{22}{section.5.2}%
-\contentsline {chapter}{Bibliografie}{23}{chapter*.12}%
-\contentsline {chapter}{Anexe}{25}{chapter*.13}%
-\contentsline {section}{\numberline {1}Componente Software}{25}{section.0.1}%
-\contentsline {section}{\numberline {2}Componente Hardware}{26}{section.0.2}%
-\contentsline {section}{\numberline {3}Codul funcției xyz()}{27}{section.0.3}%
-\contentsline {section}{\numberline {4}Tabel lung pe mai multe pagini}{29}{section.0.4}%
-\contentsline {section}{\numberline {5}Tabel simplu}{31}{section.0.5}%
-\contentsline {section}{\numberline {6}Cod în python}{32}{section.0.6}%
-\contentsline {section}{\numberline {7}Cod în Kotlin (mai lung de o pagină)}{33}{section.0.7}%
-\contentsline {section}{\numberline {8}Cod în XML (preluat din fisier)}{35}{section.0.8}%
+\contentsline {section}{\numberline {3.7}Load Balancer}{14}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Service Deployment Flow}{14}{section.3.8}%
+\contentsline {section}{\numberline {3.9}Agent -- Worker Command Server}{15}{section.3.9}%
+\contentsline {section}{\numberline {3.10}Container -- State Machine}{15}{section.3.10}%
+\contentsline {section}{\numberline {3.11}Implementation}{16}{section.3.11}%
+\contentsline {chapter}{\numberline {4}Testarea aplicației și rezultate experimentale}{17}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Nivel 1}{17}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Nivel 2}{18}{subsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.1.1}Nivel 3}{18}{subsubsection.4.1.1.1}%
+\contentsline {chapter}{\numberline {5}Concluzii}{23}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Direcții viitoare de dezvoltare}{23}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Lecții învățate pe parcursul dezvoltării proiectului de diplomă}{24}{section.5.2}%
+\contentsline {chapter}{Bibliografie}{25}{chapter*.14}%
+\contentsline {chapter}{Anexe}{27}{chapter*.15}%
+\contentsline {section}{\numberline {1}Componente Software}{27}{section.0.1}%
+\contentsline {section}{\numberline {2}Componente Hardware}{28}{section.0.2}%
+\contentsline {section}{\numberline {3}Codul funcției xyz()}{29}{section.0.3}%
+\contentsline {section}{\numberline {4}Tabel lung pe mai multe pagini}{31}{section.0.4}%
+\contentsline {section}{\numberline {5}Tabel simplu}{33}{section.0.5}%
+\contentsline {section}{\numberline {6}Cod în python}{34}{section.0.6}%
+\contentsline {section}{\numberline {7}Cod în Kotlin (mai lung de o pagină)}{35}{section.0.7}%
+\contentsline {section}{\numberline {8}Cod în XML (preluat din fisier)}{37}{section.0.8}%
