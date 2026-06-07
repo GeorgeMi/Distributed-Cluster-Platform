@@ -3,7 +3,7 @@
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Objectives}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Methodology and Tools}{1}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Thesis Structure}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.3}Thesis Structure}{1}{section.1.3}%
 \contentsline {chapter}{\numberline {2}Theoretical Background and Similar Solutions}{3}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Distributed Systems}{3}{section.2.1}%
 \contentsline {subsection}{\numberline {2.1.1}Node Discovery and Heartbeats}{3}{subsection.2.1.1}%
@@ -13,10 +13,10 @@
 \contentsline {subsection}{\numberline {2.1.5}Containerization}{4}{subsection.2.1.5}%
 \contentsline {section}{\numberline {2.2}Similar Solutions}{4}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Kubernetes}{4}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}Docker Swarm}{5}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.2}Docker Swarm}{4}{subsection.2.2.2}%
 \contentsline {subsection}{\numberline {2.2.3}HashiCorp Nomad}{5}{subsection.2.2.3}%
 \contentsline {section}{\numberline {2.3}Summary of Comparison}{5}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Expected Characteristics}{6}{section.2.4}%
+\contentsline {section}{\numberline {2.4}Expected Characteristics}{5}{section.2.4}%
 \contentsline {section}{\numberline {2.5}Conclusions}{6}{section.2.5}%
 \contentsline {chapter}{\numberline {3}Proposed Solution}{7}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Technology Choices}{7}{section.3.1}%
@@ -26,33 +26,57 @@
 \contentsline {subsection}{\numberline {3.2.3}Communication}{9}{subsection.3.2.3}%
 \contentsline {section}{\numberline {3.3}Domain Model}{9}{section.3.3}%
 \contentsline {section}{\numberline {3.4}Heartbeat and Node Discovery}{10}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Auto-Join}{10}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Heartbeat Loop}{10}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}Node Removal}{11}{subsection.3.4.3}%
-\contentsline {section}{\numberline {3.5}Fault Tolerance -- Detection and Recovery}{11}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Failure Detection}{12}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}Container Recovery}{12}{subsection.3.5.2}%
-\contentsline {subsection}{\numberline {3.5.3}Split-Brain Prevention}{12}{subsection.3.5.3}%
-\contentsline {section}{\numberline {3.6}Worker Node -- State Machine}{13}{section.3.6}%
-\contentsline {section}{\numberline {3.7}Load Balancer}{14}{section.3.7}%
-\contentsline {section}{\numberline {3.8}Service Deployment Flow}{14}{section.3.8}%
-\contentsline {section}{\numberline {3.9}Agent -- Worker Command Server}{15}{section.3.9}%
-\contentsline {section}{\numberline {3.10}Container -- State Machine}{15}{section.3.10}%
-\contentsline {section}{\numberline {3.11}Implementation}{16}{section.3.11}%
-\contentsline {chapter}{\numberline {4}Testarea aplicației și rezultate experimentale}{17}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Nivel 1}{17}{section.4.1}%
-\contentsline {subsection}{\numberline {4.1.1}Nivel 2}{18}{subsection.4.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.1.1}Nivel 3}{18}{subsubsection.4.1.1.1}%
-\contentsline {chapter}{\numberline {5}Concluzii}{23}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Direcții viitoare de dezvoltare}{23}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Lecții învățate pe parcursul dezvoltării proiectului de diplomă}{24}{section.5.2}%
-\contentsline {chapter}{Bibliografie}{25}{chapter*.14}%
-\contentsline {chapter}{Anexe}{27}{chapter*.15}%
-\contentsline {section}{\numberline {1}Componente Software}{27}{section.0.1}%
-\contentsline {section}{\numberline {2}Componente Hardware}{28}{section.0.2}%
-\contentsline {section}{\numberline {3}Codul funcției xyz()}{29}{section.0.3}%
-\contentsline {section}{\numberline {4}Tabel lung pe mai multe pagini}{31}{section.0.4}%
-\contentsline {section}{\numberline {5}Tabel simplu}{33}{section.0.5}%
-\contentsline {section}{\numberline {6}Cod în python}{34}{section.0.6}%
-\contentsline {section}{\numberline {7}Cod în Kotlin (mai lung de o pagină)}{35}{section.0.7}%
-\contentsline {section}{\numberline {8}Cod în XML (preluat din fisier)}{37}{section.0.8}%
+\contentsline {subsection}{\numberline {3.4.1}Auto-Join}{11}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Heartbeat Loop}{11}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Node Removal}{12}{subsection.3.4.3}%
+\contentsline {section}{\numberline {3.5}Fault Tolerance: Detection and Recovery}{12}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Failure Detection}{13}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Container Recovery}{13}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Split-Brain Prevention}{13}{subsection.3.5.3}%
+\contentsline {section}{\numberline {3.6}Worker Node State Machine}{14}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Load Balancer}{15}{section.3.7}%
+\contentsline {section}{\numberline {3.8}REST API}{15}{section.3.8}%
+\contentsline {section}{\numberline {3.9}Service Deployment Flow}{16}{section.3.9}%
+\contentsline {section}{\numberline {3.10}Agent: Worker Command Server}{17}{section.3.10}%
+\contentsline {section}{\numberline {3.11}Container State Machine}{18}{section.3.11}%
+\contentsline {section}{\numberline {3.12}Security and Audit Architecture}{19}{section.3.12}%
+\contentsline {subsection}{\numberline {3.12.1}JWT Authentication with Refresh Tokens}{19}{subsection.3.12.1}%
+\contentsline {subsection}{\numberline {3.12.2}Role-Based Access Control}{20}{subsection.3.12.2}%
+\contentsline {section}{\numberline {3.13}Leader Election: Raft Consensus}{21}{section.3.13}%
+\contentsline {subsection}{\numberline {3.13.1}Normal Operation}{21}{subsection.3.13.1}%
+\contentsline {subsection}{\numberline {3.13.2}Leader Failure and Election}{22}{subsection.3.13.2}%
+\contentsline {subsection}{\numberline {3.13.3}Old Leader Recovery}{22}{subsection.3.13.3}%
+\contentsline {subsection}{\numberline {3.13.4}Implementation}{22}{subsection.3.13.4}%
+\contentsline {subsection}{\numberline {3.13.5}Cluster Deployment Topology}{23}{subsection.3.13.5}%
+\contentsline {subsection}{\numberline {3.13.6}Audit Log}{23}{subsection.3.13.6}%
+\contentsline {section}{\numberline {3.14}Implementation}{23}{section.3.14}%
+\contentsline {section}{\numberline {3.15}How to Run}{24}{section.3.15}%
+\contentsline {chapter}{\numberline {4}Testing and Experimental Results}{27}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Unit Tests}{27}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Load Balancer Tests}{27}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Scheduler Tests}{27}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}ACL Tests}{27}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Results}{28}{subsection.4.1.4}%
+\contentsline {section}{\numberline {4.2}Manual Testing}{28}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Node Discovery and Heartbeats}{28}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Service Deployment}{29}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Fault Tolerance}{29}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Security: Role-Based Access Control}{30}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Audit Log}{30}{subsection.4.2.5}%
+\contentsline {chapter}{\numberline {5}Conclusions}{33}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Achieved Objectives}{33}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Comparison with Similar Solutions}{33}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Future Work}{33}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Lessons Learned}{34}{section.5.4}%
+\contentsline {chapter}{Bibliografie}{35}{chapter*.20}%
+\contentsline {chapter}{Annexes}{37}{chapter*.21}%
+\contentsline {section}{\numberline {1}Domain Models}{37}{section.0.1}%
+\contentsline {section}{\numberline {2}Cluster State}{40}{section.0.2}%
+\contentsline {section}{\numberline {3}Heartbeat Receiver}{46}{section.0.3}%
+\contentsline {section}{\numberline {4}Fault Tolerance}{48}{section.0.4}%
+\contentsline {section}{\numberline {5}Load Balancer}{51}{section.0.5}%
+\contentsline {section}{\numberline {6}Scheduler}{53}{section.0.6}%
+\contentsline {section}{\numberline {7}REST API Server}{55}{section.0.7}%
+\contentsline {section}{\numberline {8}Security -- JWT and ACL}{63}{section.0.8}%
+\contentsline {section}{\numberline {9}Docker Integration}{67}{section.0.9}%
+\contentsline {section}{\numberline {10}Raft FSM}{71}{section.0.10}%

@@ -27,18 +27,30 @@ func main() {
 
 	log.Printf("worker %s starting, address=%s, multicast=%s", *nodeID, *addr, *multicast)
 
+	// Docker manager
+	docker, err := agent.NewDockerManager()
+	if err != nil {
+		log.Fatalf("docker: %v", err)
+	}
+
 	// Command server - receives StartContainer/KillContainers from master
 	cmdServer := agent.NewCommandServer(*addr, func(cmd agent.Command) agent.CommandResponse {
 		switch cmd.Type {
 		case agent.CmdStartContainer:
 			log.Printf("worker: StartContainer image=%s service=%s", cmd.Image, cmd.ServiceID)
-			// TODO: integrate with Docker SDK
-			containerID := fmt.Sprintf("container-%s-%d", cmd.ServiceID, time.Now().UnixMilli())
+			containerID, err := docker.StartContainer(cmd)
+			if err != nil {
+				log.Printf("worker: StartContainer failed: %v", err)
+				return agent.CommandResponse{Success: false, Error: err.Error()}
+			}
 			return agent.CommandResponse{Success: true, ContainerID: containerID}
 
 		case agent.CmdKillContainers:
-			log.Printf("worker: KillContainers - stopping all containers")
-			// TODO: integrate with Docker SDK
+			log.Printf("worker: KillContainers service=%s", cmd.ServiceID)
+			if err := docker.KillContainersByService(cmd.ServiceID); err != nil {
+				log.Printf("worker: KillContainers failed: %v", err)
+				return agent.CommandResponse{Success: false, Error: err.Error()}
+			}
 			return agent.CommandResponse{Success: true}
 
 		default:
@@ -57,7 +69,7 @@ func main() {
 			return agent.GetMetrics()
 		},
 		func() []string {
-			return nil // TODO: return running container IDs from Docker
+			return docker.RunningContainerIDs()
 		},
 	)
 	go sender.Start()
@@ -67,6 +79,7 @@ func main() {
 	<-sig
 
 	log.Println("worker shutting down")
+	docker.KillAllContainers()
 	sender.Stop()
 	cmdServer.Stop()
 }

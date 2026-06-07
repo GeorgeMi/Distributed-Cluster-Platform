@@ -2,28 +2,20 @@
 \begin{center}
     \LARGE
     \textbf{\thesistitle}
-    
+
     \vspace{0.5cm}
-    
+
     \authornamefl
-    
+
     \vspace{1cm}
-    
-    \textbf{Rezumat}
-    
+
+    \textbf{Abstract}
+
     \vspace{1cm}
 \end{center}
 
+This thesis presents the design and implementation of a distributed platform for running containerized services within a cluster. The platform is built from scratch in Go and addresses the core challenges of cluster management: automatic node discovery using UDP multicast heartbeats, resource pool allocation, pluggable load balancing (Least Connections and Weighted strategies), fault tolerance with automatic container recovery and split-brain prevention, JWT-based authentication with refresh tokens, role-based access control and an append-only audit log. The cluster state is replicated across multiple master nodes using the Raft consensus protocol for high availability. Worker nodes run Docker containers and communicate with the master through heartbeats and TCP commands. The platform provides a REST API for deploying services, managing nodes and querying the audit log. Compared to production platforms like Kubernetes, the proposed solution focuses on simplicity and clarity, implementing the fundamental distributed systems concepts in an understandable way suitable for educational use and smaller deployments. The platform was validated through unit tests covering the load balancer, scheduler and access control components, as well as manual end-to-end tests demonstrating node discovery, service deployment, fault recovery and security enforcement.
 
-Proiectul de diplomă/lucrarea de disertație va conține un scurt rezumat (abstract – termenul în engleză) de maximum o pagină, care expune ideile principale ale tezei, contribuția autorului la realizarea temei propuse precum și concluziile obținute. Formulați ideile principale ale lucrării în propoziții sau fraze cât mai simple, fără amănunte nesemnificative. Încercați să atingeți următoarele idei:
-\begin{itemize}
-    \item contextul și motivația alegerii temei;
-    \item obiectivele principale;
-    \item metodologia utilizată;
-    \item soluția propusă;
-    \item rezultatele esențiale și principalele concluzii.
-\end{itemize}
+\vspace{1cm}
 
-Rezumatul ar trebui să fie între 150-250 de cuvinte și să fie urmat de cuvinte-cheie (\textit{keywords}, 5-7 termeni relevanți).
-
-\textit{Recomandare neoficială: Rezumatul se compune, de obicei, după ce ați terminat redactarea lucrării de licență/disertație, după finalizarea capitolului Concluzii}
+\textbf{Keywords:} distributed systems, cluster management, container orchestration, heartbeat, fault tolerance, load balancing, Raft consensus

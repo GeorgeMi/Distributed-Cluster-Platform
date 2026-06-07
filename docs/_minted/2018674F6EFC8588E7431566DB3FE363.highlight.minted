@@ -1,0 +1,53 @@
+\begin{MintedVerbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{package}\PYG{+w}{ }\PYG{n+nx}{security}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/domain\PYGZdq{}}
+
+\PYG{c+c1}{// Permission defines an action on a resource.}
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{Permission}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{Resource}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{c+c1}{// \PYGZdq{}services\PYGZdq{}, \PYGZdq{}nodes\PYGZdq{}, \PYGZdq{}pools\PYGZdq{}, \PYGZdq{}users\PYGZdq{}, \PYGZdq{}audit\PYGZdq{}}
+\PYG{+w}{	}\PYG{n+nx}{Action}\PYG{+w}{   }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{c+c1}{// \PYGZdq{}read\PYGZdq{}, \PYGZdq{}create\PYGZdq{}, \PYGZdq{}delete\PYGZdq{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// ACL rules: which roles can perform which actions.}
+\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{aclRules}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{k+kd}{map}\PYG{p}{[}\PYG{k+kt}{string}\PYG{p}{]}\PYG{p}{[}\PYG{p}{]}\PYG{n+nx}{Permission}\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{RoleAdmin}\PYG{p}{:}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}services\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}services\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}create\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}services\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}delete\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}nodes\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}pools\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}users\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}users\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}create\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}audit\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{RoleWriter}\PYG{p}{:}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}services\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}services\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}create\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}services\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}delete\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}nodes\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}pools\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}audit\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{RoleReader}\PYG{p}{:}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}services\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}nodes\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}pools\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}\PYG{n+nx}{Resource}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}audit\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Action}\PYG{p}{:}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}read\PYGZdq{}}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}\PYG{p}{,}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// CheckPermission returns true if the role has permission for the action on the resource.}
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{n+nx}{CheckPermission}\PYG{p}{(}\PYG{n+nx}{role}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{resource}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{action}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{)}\PYG{+w}{ }\PYG{k+kt}{bool}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{perms}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{ok}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{aclRules}\PYG{p}{[}\PYG{n+nx}{role}\PYG{p}{]}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{p}{!}\PYG{n+nx}{ok}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{false}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{p}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{perms}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{p}\PYG{p}{.}\PYG{n+nx}{Resource}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{n+nx}{resource}\PYG{+w}{ }\PYG{o}{\PYGZam{}\PYGZam{}}\PYG{+w}{ }\PYG{n+nx}{p}\PYG{p}{.}\PYG{n+nx}{Action}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{n+nx}{action}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{true}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{false}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

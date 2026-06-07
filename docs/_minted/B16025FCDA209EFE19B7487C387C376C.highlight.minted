@@ -1,0 +1,99 @@
+\begin{MintedVerbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{package}\PYG{+w}{ }\PYG{n+nx}{heartbeat}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}encoding/json\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}log\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}net\PYGZdq{}}
+
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/cluster\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/domain\PYGZdq{}}
+\PYG{p}{)}
+
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{Receiver}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{multicastAddr}\PYG{+w}{    }\PYG{k+kt}{string}
+\PYG{+w}{	}\PYG{n+nx}{state}\PYG{+w}{            }\PYG{o}{*}\PYG{n+nx}{cluster}\PYG{p}{.}\PYG{n+nx}{State}
+\PYG{+w}{	}\PYG{n+nx}{onLateHeartbeat}\PYG{+w}{  }\PYG{k+kd}{func}\PYG{p}{(}\PYG{n+nx}{nodeID}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{)}
+\PYG{+w}{	}\PYG{n+nx}{onNodeDiscovered}\PYG{+w}{ }\PYG{k+kd}{func}\PYG{p}{(}\PYG{n+nx}{nodeID}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{)}
+\PYG{+w}{	}\PYG{n+nx}{stop}\PYG{+w}{             }\PYG{k+kd}{chan}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{p}{\PYGZob{}}\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{n+nx}{NewReceiver}\PYG{p}{(}\PYG{n+nx}{multicastAddr}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{state}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{cluster}\PYG{p}{.}\PYG{n+nx}{State}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{onLateHeartbeat}\PYG{+w}{ }\PYG{k+kd}{func}\PYG{p}{(}\PYG{n+nx}{nodeID}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{)}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{onNodeDiscovered}\PYG{+w}{ }\PYG{k+kd}{func}\PYG{p}{(}\PYG{n+nx}{nodeID}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{p}{)}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Receiver}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{Receiver}\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{multicastAddr}\PYG{p}{:}\PYG{+w}{    }\PYG{n+nx}{multicastAddr}\PYG{p}{,}
+\PYG{+w}{		}\PYG{n+nx}{state}\PYG{p}{:}\PYG{+w}{            }\PYG{n+nx}{state}\PYG{p}{,}
+\PYG{+w}{		}\PYG{n+nx}{onLateHeartbeat}\PYG{p}{:}\PYG{+w}{  }\PYG{n+nx}{onLateHeartbeat}\PYG{p}{,}
+\PYG{+w}{		}\PYG{n+nx}{onNodeDiscovered}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{onNodeDiscovered}\PYG{p}{,}
+\PYG{+w}{		}\PYG{n+nx}{stop}\PYG{p}{:}\PYG{+w}{             }\PYG{n+nb}{make}\PYG{p}{(}\PYG{k+kd}{chan}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{p}{\PYGZob{}}\PYG{p}{\PYGZcb{}}\PYG{p}{)}\PYG{p}{,}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{r}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Receiver}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Start}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{addr}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{net}\PYG{p}{.}\PYG{n+nx}{ResolveUDPAddr}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}udp\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{multicastAddr}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Fatalf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}heartbeat receiver: resolve addr: \PYGZpc{}v\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{n+nx}{conn}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{net}\PYG{p}{.}\PYG{n+nx}{ListenMulticastUDP}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}udp\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{addr}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Fatalf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}heartbeat receiver: listen: \PYGZpc{}v\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{k}{defer}\PYG{+w}{ }\PYG{n+nx}{conn}\PYG{p}{.}\PYG{n+nx}{Close}\PYG{p}{(}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{n+nx}{conn}\PYG{p}{.}\PYG{n+nx}{SetReadBuffer}\PYG{p}{(}\PYG{l+m+mi}{8192}\PYG{p}{)}
+\PYG{+w}{	}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}heartbeat receiver: listening on \PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{multicastAddr}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{n+nx}{buf}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nb}{make}\PYG{p}{(}\PYG{p}{[}\PYG{p}{]}\PYG{k+kt}{byte}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{4096}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{for}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{select}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{case}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZhy{}}\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{stop}\PYG{p}{:}
+\PYG{+w}{			}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}heartbeat receiver: stopped\PYGZdq{}}\PYG{p}{)}
+\PYG{+w}{			}\PYG{k}{return}
+\PYG{+w}{		}\PYG{k}{default}\PYG{p}{:}
+\PYG{+w}{			}\PYG{n+nx}{n}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{conn}\PYG{p}{.}\PYG{n+nx}{ReadFromUDP}\PYG{p}{(}\PYG{n+nx}{buf}\PYG{p}{)}
+\PYG{+w}{			}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{				}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}heartbeat receiver: read: \PYGZpc{}v\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{p}{)}
+\PYG{+w}{				}\PYG{k}{continue}
+\PYG{+w}{			}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{			}\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{handleHeartbeat}\PYG{p}{(}\PYG{n+nx}{buf}\PYG{p}{[}\PYG{p}{:}\PYG{n+nx}{n}\PYG{p}{]}\PYG{p}{)}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{r}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Receiver}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Stop}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nb}{close}\PYG{p}{(}\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{stop}\PYG{p}{)}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{r}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Receiver}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{handleHeartbeat}\PYG{p}{(}\PYG{n+nx}{data}\PYG{+w}{ }\PYG{p}{[}\PYG{p}{]}\PYG{k+kt}{byte}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{+w}{ }\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Heartbeat}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{hb}\PYG{p}{)}\PYG{p}{;}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}heartbeat receiver: unmarshal: \PYGZpc{}v\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{p}{)}
+\PYG{+w}{		}\PYG{k}{return}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{n+nx}{node}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{exists}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{GetNode}\PYG{p}{(}\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{NodeID}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{p}{!}\PYG{n+nx}{exists}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{newNode}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n+nx}{ID}\PYG{p}{:}\PYG{+w}{       }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{NodeID}\PYG{p}{,}
+\PYG{+w}{			}\PYG{n+nx}{Address}\PYG{p}{:}\PYG{+w}{  }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{Address}\PYG{p}{,}
+\PYG{+w}{			}\PYG{n+nx}{Status}\PYG{p}{:}\PYG{+w}{   }\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{NodeAlive}\PYG{p}{,}
+\PYG{+w}{			}\PYG{n+nx}{TotalCPU}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{TotalCPU}\PYG{p}{,}
+\PYG{+w}{			}\PYG{n+nx}{UsedCPU}\PYG{p}{:}\PYG{+w}{  }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{UsedCPU}\PYG{p}{,}
+\PYG{+w}{			}\PYG{n+nx}{TotalRAM}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{TotalRAM}\PYG{p}{,}
+\PYG{+w}{			}\PYG{n+nx}{UsedRAM}\PYG{p}{:}\PYG{+w}{  }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{UsedRAM}\PYG{p}{,}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{AddNode}\PYG{p}{(}\PYG{n+nx}{newNode}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{AssignNodeToPool}\PYG{p}{(}\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{NodeID}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{newNode}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}heartbeat receiver: new node discovered: \PYGZpc{}s (\PYGZpc{}s) CPU=\PYGZpc{}.1f RAM=\PYGZpc{}dMB\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{			}\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{NodeID}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{Address}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{TotalCPU}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{TotalRAM}\PYG{p}{)}
+\PYG{+w}{		}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{onNodeDiscovered}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{onNodeDiscovered}\PYG{p}{(}\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{NodeID}\PYG{p}{)}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{k}{else}\PYG{+w}{ }\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{Status}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{NodeDead}\PYG{+w}{ }\PYG{o}{\PYGZam{}\PYGZam{}}\PYG{+w}{ }\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{onLateHeartbeat}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{onLateHeartbeat}\PYG{p}{(}\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{NodeID}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{c+c1}{// Update metrics for every heartbeat}
+\PYG{+w}{	}\PYG{n+nx}{r}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{UpdateNodeMetrics}\PYG{p}{(}\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{NodeID}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{UsedCPU}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{UsedRAM}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{hb}\PYG{p}{.}\PYG{n+nx}{ActiveConnections}\PYG{p}{)}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

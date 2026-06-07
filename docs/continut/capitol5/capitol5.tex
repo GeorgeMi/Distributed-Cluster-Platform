@@ -1,26 +1,43 @@
-\chapter{Concluzii}
+\chapter{Conclusions}
 \label{cap:cap5}
 
-Concluziile lucrării (1–2 pagini) în care se regăsesc cele mai importante concluzii din lucrare, care pornind de la obiectivele propuse în introducerea lucrării vor conține opinia personală a autorului privind rezultatele obținute în lucrare, o comparație a acestora cu alte proiecte/produse similare precum și posibile direcții de dezvoltare. 
+This thesis presented the design and implementation of a distributed platform for running containerized services within a cluster. The platform was built from scratch in Go and addresses the core challenges of cluster management: automatic node discovery, resource allocation, load balancing, fault tolerance, security and auditing. The entire codebase is a single Go module with clear package structure, making it easy to read and extend.
+
+\section{Achieved Objectives}
+
+All objectives proposed in the introduction have been achieved:
 
 \begin{itemize}
-    \item Gradul în care s-a realizat tema propusă (motivarea eventualelor obiective modificate);
-    \item Evidențierea concisă a contribuțiilor/soluțiilor personale (dacă este cazul);
-    \item Comparație cu alte proiecte similare;
-    \item Posibile direcții de dezvoltare.
+    \item \textbf{Automatic node discovery}. Worker nodes are discovered automatically via UDP multicast heartbeats. No manual configuration or join tokens are needed. The master detects new nodes within 5 seconds of their first heartbeat.
+    \item \textbf{Resource pools}. Nodes are grouped into pools based on CPU and RAM. Services are deployed to specific pools, ensuring they run on appropriate hardware.
+    \item \textbf{Load balancing}. Two strategies are implemented (Least Connections and Weighted) behind a pluggable interface that allows custom strategies to be added without modifying existing code.
+    \item \textbf{Fault tolerance}. The platform detects node failures within 30 seconds, automatically restarts containers on healthy nodes using the original service parameters and prevents duplicate containers through the KillContainers mechanism.
+    \item \textbf{Security}. JWT authentication with refresh tokens and role-based access control (Admin, Writer, Reader) protect all API endpoints.
+    \item \textbf{Audit}. All important actions are recorded in an append-only log queryable through the API.
+    \item \textbf{High availability}. Raft consensus enables state replication across multiple master nodes with automatic leader election.
+    \item \textbf{Docker integration}. Containers are managed through the Docker SDK, supporting image pulling, resource limits, environment variables, ports and custom commands.
+    \item \textbf{REST API}. A complete HTTP API allows users to manage services, view nodes and query audit logs.
 \end{itemize}
 
-În acest capitol nu se introduc figuri, table sau listing-uri de cod. Pot fi în schimb referite!
+\section{Comparison with Similar Solutions}
 
-Concluziile finale au un rol semnificativ în cadrul lucrării de diplomă, care trebuie pus în evidență în special în momentul susținerii acesteia în fața comisiei. Aici trebuie prezentate, în câteva pagini, cele mai importante rezultate ale muncii depuse de candidat și potențiale direcții de dezvoltare ulterioară a temei abordate. Acest capitol oferă o sinteză a realizărilor obținute, precum și avantajele și neajunsurile soluțiilor alese. Concluziile nu trebuie să aducă rezultate sau interpretări noi, ci doar să le evidențieze pe cele din conținutul lucrării.
+Compared to Kubernetes, Docker Swarm and Nomad (analyzed in Chapter 2), the proposed platform is simpler to understand and deploy. It implements the same fundamental concepts (heartbeats, consensus, scheduling, RBAC) but in a single Go module with minimal dependencies. This makes it suitable for educational purposes and smaller deployments where Kubernetes would be too complex.
 
-\section{Direcții viitoare de dezvoltare}
-\label{cap:cap5:directii-viitoare}
+The main trade-off is that the platform lacks features expected in production systems: persistent storage, service networking, horizontal scaling of masters and support for multiple container runtimes.
 
-\textcolor{gray}{\lipsum[1-3]}
+\section{Future Work}
 
-\section{Lecții învățate pe parcursul dezvoltării proiectului de diplomă}
+Several improvements could extend the platform:
 
-Ar fi interesant dacă acest capitol s-ar încheia cu o astfel de secțiune, în mod special la licență.
+\begin{itemize}
+    \item \textbf{Persistent state}. Currently the cluster state is stored in memory. Persisting it to disk through the Raft log would allow the cluster to survive full restarts.
+    \item \textbf{Service networking}. Adding DNS-based service discovery and ingress routing would allow containers to communicate with each other by name.
+    \item \textbf{Auto-scaling}. Automatically adjusting the number of replicas based on CPU or memory usage.
+    \item \textbf{Web dashboard}. A graphical interface for monitoring the cluster, deploying services and viewing logs.
+    \item \textbf{Multi-runtime support}. Adding support for containerd or Podman in addition to Docker.
+    \item \textbf{Health checks}. Allowing services to define custom health check endpoints that the platform monitors.
+\end{itemize}
 
-\textcolor{gray}{\lipsum[2-4]}
+\section{Lessons Learned}
+
+Building this platform from scratch provided several important lessons about distributed systems. First, handling failures is harder than handling normal operations because most of the complexity comes from edge cases like split-brain, partial failures and race conditions. Second, keeping things simple is a design choice that requires effort. It is easy to add features, but hard to keep the system understandable. Third, UDP multicast is a good fit for heartbeats but requires careful handling since packets can be lost. Fourth, Raft provides strong guarantees but adds complexity to every write operation. Finally, testing distributed systems is difficult because failures are hard to reproduce, so the manual tests were more useful than unit tests for finding real bugs.

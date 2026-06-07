@@ -1,0 +1,140 @@
+\begin{MintedVerbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{package}\PYG{+w}{ }\PYG{n+nx}{cluster}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}encoding/json\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}fmt\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}io\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}log\PYGZdq{}}
+
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/domain\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/hashicorp/raft\PYGZdq{}}
+\PYG{p}{)}
+
+\PYG{c+c1}{// LogEntry is a command that modifies the cluster state via Raft.}
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{LogEntry}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{Type}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{+w}{          }\PYG{l+s}{`json:\PYGZdq{}type\PYGZdq{}`}
+\PYG{+w}{	}\PYG{n+nx}{Data}\PYG{+w}{ }\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{RawMessage}\PYG{+w}{ }\PYG{l+s}{`json:\PYGZdq{}data\PYGZdq{}`}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// Log entry types}
+\PYG{k+kd}{const}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{	}\PYG{n+nx}{LogAddNode}\PYG{+w}{            }\PYG{p}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}AddNode\PYGZdq{}}
+\PYG{+w}{	}\PYG{n+nx}{LogRemoveNode}\PYG{+w}{         }\PYG{p}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}RemoveNode\PYGZdq{}}
+\PYG{+w}{	}\PYG{n+nx}{LogSetNodeStatus}\PYG{+w}{      }\PYG{p}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}SetNodeStatus\PYGZdq{}}
+\PYG{+w}{	}\PYG{n+nx}{LogAddService}\PYG{+w}{         }\PYG{p}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}AddService\PYGZdq{}}
+\PYG{+w}{	}\PYG{n+nx}{LogRemoveService}\PYG{+w}{      }\PYG{p}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}RemoveService\PYGZdq{}}
+\PYG{+w}{	}\PYG{n+nx}{LogAddContainer}\PYG{+w}{       }\PYG{p}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}AddContainer\PYGZdq{}}
+\PYG{+w}{	}\PYG{n+nx}{LogRemoveContainer}\PYG{+w}{    }\PYG{p}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}RemoveContainer\PYGZdq{}}
+\PYG{+w}{	}\PYG{n+nx}{LogSetContainerStatus}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}SetContainerStatus\PYGZdq{}}
+\PYG{p}{)}
+
+\PYG{c+c1}{// FSM implements raft.FSM for the cluster state.}
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{FSM}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{state}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{State}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{n+nx}{NewFSM}\PYG{p}{(}\PYG{n+nx}{state}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{State}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{FSM}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{FSM}\PYG{p}{\PYGZob{}}\PYG{n+nx}{state}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{state}\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// Apply is called by Raft when a log entry is committed.}
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{f}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{FSM}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Apply}\PYG{p}{(}\PYG{n+nx}{l}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{raft}\PYG{p}{.}\PYG{n+nx}{Log}\PYG{p}{)}\PYG{+w}{ }\PYG{k+kt}{any}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{entry}\PYG{+w}{ }\PYG{n+nx}{LogEntry}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{l}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{entry}\PYG{p}{)}\PYG{p}{;}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}fsm: unmarshal error: \PYGZpc{}v\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{p}{)}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{n+nx}{err}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{k}{switch}\PYG{+w}{ }\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Type}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{case}\PYG{+w}{ }\PYG{n+nx}{LogAddNode}\PYG{p}{:}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{+w}{ }\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}
+\PYG{+w}{		}\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{node}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{AddNode}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n+nx}{node}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{AssignNodeToPool}\PYG{p}{(}\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{node}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}fsm: apply AddNode \PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{case}\PYG{+w}{ }\PYG{n+nx}{LogRemoveNode}\PYG{p}{:}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{args}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{ID}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{l+s}{`json:\PYGZdq{}id\PYGZdq{}`}\PYG{+w}{ }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{args}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{RemoveNode}\PYG{p}{(}\PYG{n+nx}{args}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{case}\PYG{+w}{ }\PYG{n+nx}{LogSetNodeStatus}\PYG{p}{:}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{args}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n+nx}{ID}\PYG{+w}{     }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{l+s}{`json:\PYGZdq{}id\PYGZdq{}`}
+\PYG{+w}{			}\PYG{n+nx}{Status}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{l+s}{`json:\PYGZdq{}status\PYGZdq{}`}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{args}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{SetNodeStatus}\PYG{p}{(}\PYG{n+nx}{args}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{args}\PYG{p}{.}\PYG{n+nx}{Status}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{case}\PYG{+w}{ }\PYG{n+nx}{LogAddService}\PYG{p}{:}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{svc}\PYG{+w}{ }\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Service}
+\PYG{+w}{		}\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{svc}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{AddService}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n+nx}{svc}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}fsm: apply AddService \PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{svc}\PYG{p}{.}\PYG{n+nx}{Name}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{case}\PYG{+w}{ }\PYG{n+nx}{LogRemoveService}\PYG{p}{:}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{args}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{ID}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{l+s}{`json:\PYGZdq{}id\PYGZdq{}`}\PYG{+w}{ }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{args}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{RemoveService}\PYG{p}{(}\PYG{n+nx}{args}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{case}\PYG{+w}{ }\PYG{n+nx}{LogAddContainer}\PYG{p}{:}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{c}\PYG{+w}{ }\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Container}
+\PYG{+w}{		}\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{c}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{AddContainer}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n+nx}{c}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{case}\PYG{+w}{ }\PYG{n+nx}{LogRemoveContainer}\PYG{p}{:}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{args}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{n+nx}{ID}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{l+s}{`json:\PYGZdq{}id\PYGZdq{}`}\PYG{+w}{ }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{args}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{RemoveContainer}\PYG{p}{(}\PYG{n+nx}{args}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{case}\PYG{+w}{ }\PYG{n+nx}{LogSetContainerStatus}\PYG{p}{:}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{args}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n+nx}{ID}\PYG{+w}{     }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{l+s}{`json:\PYGZdq{}id\PYGZdq{}`}
+\PYG{+w}{			}\PYG{n+nx}{Status}\PYG{+w}{ }\PYG{k+kt}{string}\PYG{+w}{ }\PYG{l+s}{`json:\PYGZdq{}status\PYGZdq{}`}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Unmarshal}\PYG{p}{(}\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Data}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{args}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{SetContainerStatus}\PYG{p}{(}\PYG{n+nx}{args}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{args}\PYG{p}{.}\PYG{n+nx}{Status}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{default}\PYG{p}{:}
+\PYG{+w}{		}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}fsm: unknown entry type: \PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{entry}\PYG{p}{.}\PYG{n+nx}{Type}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// Snapshot returns a snapshot of the current state.}
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{f}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{FSM}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Snapshot}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{raft}\PYG{p}{.}\PYG{n+nx}{FSMSnapshot}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kt}{error}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{fsmSnapshot}\PYG{p}{\PYGZob{}}\PYG{n+nx}{state}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{f}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{\PYGZcb{}}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kc}{nil}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// Restore replaces the state from a snapshot.}
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{f}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{FSM}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Restore}\PYG{p}{(}\PYG{n+nx}{rc}\PYG{+w}{ }\PYG{n+nx}{io}\PYG{p}{.}\PYG{n+nx}{ReadCloser}\PYG{p}{)}\PYG{+w}{ }\PYG{k+kt}{error}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{defer}\PYG{+w}{ }\PYG{n+nx}{rc}\PYG{p}{.}\PYG{n+nx}{Close}\PYG{p}{(}\PYG{p}{)}
+\PYG{+w}{	}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Println}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}fsm: restore called\PYGZdq{}}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{fsmSnapshot}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{state}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{State}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{s}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{fsmSnapshot}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Persist}\PYG{p}{(}\PYG{n+nx}{sink}\PYG{+w}{ }\PYG{n+nx}{raft}\PYG{p}{.}\PYG{n+nx}{SnapshotSink}\PYG{p}{)}\PYG{+w}{ }\PYG{k+kt}{error}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{defer}\PYG{+w}{ }\PYG{n+nx}{sink}\PYG{p}{.}\PYG{n+nx}{Close}\PYG{p}{(}\PYG{p}{)}
+\PYG{+w}{	}\PYG{n+nx}{data}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{json}\PYG{p}{.}\PYG{n+nx}{Marshal}\PYG{p}{(}\PYG{k+kd}{map}\PYG{p}{[}\PYG{k+kt}{string}\PYG{p}{]}\PYG{k+kt}{any}\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{l+s}{\PYGZdq{}nodes\PYGZdq{}}\PYG{p}{:}\PYG{+w}{    }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{GetAllNodes}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}
+\PYG{+w}{		}\PYG{l+s}{\PYGZdq{}services\PYGZdq{}}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{GetAllServices}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{sink}\PYG{p}{.}\PYG{n+nx}{Cancel}\PYG{p}{(}\PYG{p}{)}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{n+nx}{fmt}\PYG{p}{.}\PYG{n+nx}{Errorf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}snapshot marshal: \PYGZpc{}w\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{sink}\PYG{p}{.}\PYG{n+nx}{Write}\PYG{p}{(}\PYG{n+nx}{data}\PYG{p}{)}\PYG{p}{;}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{sink}\PYG{p}{.}\PYG{n+nx}{Cancel}\PYG{p}{(}\PYG{p}{)}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{n+nx}{fmt}\PYG{p}{.}\PYG{n+nx}{Errorf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}snapshot write: \PYGZpc{}w\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{s}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{fsmSnapshot}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Release}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

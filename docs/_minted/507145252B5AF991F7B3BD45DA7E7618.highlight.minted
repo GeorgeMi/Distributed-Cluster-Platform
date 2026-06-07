@@ -1,0 +1,10 @@
+\begin{MintedVerbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{package}\PYG{+w}{ }\PYG{n+nx}{loadbalancer}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/domain\PYGZdq{}}
+
+\PYG{c+c1}{// LoadBalancer selects the best node from a list of candidates.}
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{LoadBalancer}\PYG{+w}{ }\PYG{k+kd}{interface}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{SelectNode}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{+w}{ }\PYG{p}{[}\PYG{p}{]}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Service}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

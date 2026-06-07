@@ -232,6 +232,16 @@ func (s *State) AddUser(user *domain.User) {
 	s.users[user.ID] = user
 }
 
+func (s *State) GetAllUsers() []*domain.User {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	result := make([]*domain.User, 0, len(s.users))
+	for _, u := range s.users {
+		result = append(result, u)
+	}
+	return result
+}
+
 func (s *State) GetUserByUsername(username string) (*domain.User, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

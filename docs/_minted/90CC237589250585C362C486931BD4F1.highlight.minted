@@ -1,0 +1,22 @@
+\begin{MintedVerbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{package}\PYG{+w}{ }\PYG{n+nx}{loadbalancer}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/domain\PYGZdq{}}
+
+\PYG{c+c1}{// LeastConnectionsLB picks the node with the fewest running containers.}
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{LeastConnectionsLB}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{p}{\PYGZob{}}\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{lb}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{LeastConnectionsLB}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{SelectNode}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{+w}{ }\PYG{p}{[}\PYG{p}{]}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Service}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{n+nx}{best}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{candidates}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+\PYG{+w}{	}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{candidates}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{p}{]}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nx}{n}\PYG{p}{.}\PYG{n+nx}{Containers}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZlt{}}\PYG{+w}{ }\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nx}{best}\PYG{p}{.}\PYG{n+nx}{Containers}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n+nx}{best}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nx}{n}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{n+nx}{best}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

@@ -9,21 +9,15 @@ import (
 )
 
 type Tolerance struct {
-	state          *cluster.State
-	checkInterval  time.Duration
-	suspectAfter   time.Duration
-	deadAfter      time.Duration
-	onNodeDead     func(nodeID string, containers []*domain.Container)
-	stop           chan struct{}
+	state         *cluster.State
+	checkInterval time.Duration
+	suspectAfter  time.Duration
+	deadAfter     time.Duration
+	onNodeDead    func(nodeID string, containers []*domain.Container)
+	stop          chan struct{}
 }
 
-func NewTolerance(
-	state *cluster.State,
-	checkInterval time.Duration,
-	suspectAfter time.Duration,
-	deadAfter time.Duration,
-	onNodeDead func(nodeID string, containers []*domain.Container),
-) *Tolerance {
+func NewTolerance(state *cluster.State, checkInterval time.Duration, suspectAfter time.Duration, deadAfter time.Duration, onNodeDead func(nodeID string, containers []*domain.Container)) *Tolerance {
 	return &Tolerance{
 		state:         state,
 		checkInterval: checkInterval,

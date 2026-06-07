@@ -10,18 +10,20 @@ import (
 )
 
 type Receiver struct {
-	multicastAddr      string
-	state              *cluster.State
-	onLateHeartbeat    func(nodeID string)
-	stop               chan struct{}
+	multicastAddr    string
+	state            *cluster.State
+	onLateHeartbeat  func(nodeID string)
+	onNodeDiscovered func(nodeID string)
+	stop             chan struct{}
 }
 
-func NewReceiver(multicastAddr string, state *cluster.State, onLateHeartbeat func(nodeID string)) *Receiver {
+func NewReceiver(multicastAddr string, state *cluster.State, onLateHeartbeat func(nodeID string), onNodeDiscovered func(nodeID string)) *Receiver {
 	return &Receiver{
-		multicastAddr:   multicastAddr,
-		state:           state,
-		onLateHeartbeat: onLateHeartbeat,
-		stop:            make(chan struct{}),
+		multicastAddr:    multicastAddr,
+		state:            state,
+		onLateHeartbeat:  onLateHeartbeat,
+		onNodeDiscovered: onNodeDiscovered,
+		stop:             make(chan struct{}),
 	}
 }
 
@@ -70,7 +72,6 @@ func (r *Receiver) handleHeartbeat(data []byte) {
 
 	node, exists := r.state.GetNode(hb.NodeID)
 	if !exists {
-		// Auto-join: first heartbeat from unknown node
 		newNode := &domain.Node{
 			ID:       hb.NodeID,
 			Address:  hb.Address,
@@ -84,8 +85,10 @@ func (r *Receiver) handleHeartbeat(data []byte) {
 		r.state.AssignNodeToPool(hb.NodeID, newNode)
 		log.Printf("heartbeat receiver: new node discovered: %s (%s) CPU=%.1f RAM=%dMB",
 			hb.NodeID, hb.Address, hb.TotalCPU, hb.TotalRAM)
+		if r.onNodeDiscovered != nil {
+			r.onNodeDiscovered(hb.NodeID)
+		}
 	} else if node.Status == domain.NodeDead && r.onLateHeartbeat != nil {
-		// Late heartbeat from a DEAD node -> split-brain prevention
 		r.onLateHeartbeat(hb.NodeID)
 	}
 
