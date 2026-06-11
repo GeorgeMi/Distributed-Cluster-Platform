@@ -85,10 +85,10 @@ The worker is started with the following flags:
 Master and worker nodes communicate through two channels:
 \begin{itemize}
     \item \textbf{Heartbeat}. UDP multicast, every 5 seconds. The worker sends its metrics and the master updates its state. Fire-and-forget, no acknowledgment needed.
-    \item \textbf{Commands}. TCP, from master to worker. Used for StartContainer and KillContainers. Only triggered on deploy, scale, or fault recovery.
+    \item \textbf{Commands}. TCP, from master to worker. Used for StartContainer and KillContainers. Only triggered on deploy, delete, or fault recovery.
 \end{itemize}
 
-All nodes run within a trusted internal network, so no TLS encryption is used for node-to-master communication. Raft communication between master nodes is encrypted with mTLS.
+All nodes run within a trusted internal network, so no TLS encryption is used. Both node-to-master traffic (heartbeats and commands) and Raft traffic between master nodes use plain TCP and UDP. Adding TLS would be a natural next step for an untrusted network.
 
 \section{Domain Model}
 
@@ -139,7 +139,7 @@ Node discovery is fully automatic. There is no explicit join or leave request. A
 
 \subsection{Auto-Join}
 
-When the master receives the first heartbeat from an unknown node, it automatically adds the node to the cluster state (the in-memory data structure described in section 3.3) with status ALIVE and assigns it to the matching resource pool based on the CPU and RAM values reported in the heartbeat. There is no database involved. All data is kept in memory using Go maps protected by a mutex. If the master restarts, the state is lost unless it was replicated through Raft to other master nodes.
+When the master receives the first heartbeat from an unknown node, it automatically adds the node to the cluster state (the in-memory data structure described in section 3.3) with status ALIVE and assigns it to the matching resource pool based on the CPU and RAM values reported in the heartbeat. There is no separate database. The live state is kept in memory using Go maps protected by a mutex, while write operations (services and containers) are also stored in the Raft log on disk. When the master restarts without bootstrapping a fresh cluster, it replays the Raft log to rebuild these entries, and node entries reappear from the next heartbeats.
 
 \subsection{Heartbeat Loop}
 
@@ -157,7 +157,7 @@ The metrics sent in the heartbeat are important for two reasons. First, the Sche
 
 \subsection{Node Removal}
 
-There is no explicit leave request. When a worker stops (crash, shutdown or network failure), it simply stops sending heartbeats. The master detects the absence through the fault tolerance mechanism (15 seconds SUSPECT, 30 seconds DEAD) and removes the node from the cluster. This means that a planned shutdown and an unexpected crash are handled in exactly the same way. The master does not need to distinguish between the two cases because the result is the same: the node is no longer available and its containers need to be moved elsewhere.
+There is no explicit leave request. When a worker stops (crash, shutdown or network failure), it simply stops sending heartbeats. The master detects the absence through the fault tolerance mechanism (15 seconds SUSPECT, 30 seconds DEAD), marks the node DEAD and moves its containers to other nodes. This means that a planned shutdown and an unexpected crash are handled in exactly the same way. The master does not need to distinguish between the two cases because the result is the same: the node is no longer available and its containers need to be moved elsewhere.
 
 \section{Fault Tolerance: Detection and Recovery}
 
@@ -207,10 +207,10 @@ A worker node can be in one of four states:
     \item \textbf{ALIVE}. The initial and normal state. A node enters this state when the master receives its first heartbeat. It sends heartbeats every 5 seconds, runs containers and is available for scheduling.
     \item \textbf{SUSPECT}. The master has not received a heartbeat for 15 seconds. The node might be temporarily unreachable. No action is taken yet.
     \item \textbf{DEAD}. No heartbeat for 30 seconds. The master starts fresh containers on other nodes using the original service parameters.
-    \item \textbf{REMOVED}. The node has been removed from the cluster state. All its containers have been rescheduled.
+    \item \textbf{REMOVED}. A reserved final state for a node that has been fully taken out of the cluster. In the current implementation a dead node stays in the DEAD state after its containers are rescheduled; automatic cleanup to REMOVED is left as future work.
 \end{itemize}
 
-The transitions between states are: when the master receives the first heartbeat from a node, it enters the ALIVE state (auto-join). While heartbeats arrive every 5 seconds, the node stays ALIVE. If no heartbeat is received for 15 seconds, the node moves to SUSPECT. If a heartbeat arrives while the node is SUSPECT, it goes back to ALIVE. If no heartbeat is received for 30 seconds, the node moves to DEAD. After the containers on the dead node have been rescheduled to other nodes, the node is marked REMOVED and deleted from the cluster state.
+The transitions between states are: when the master receives the first heartbeat from a node, it enters the ALIVE state (auto-join). While heartbeats arrive every 5 seconds, the node stays ALIVE. If no heartbeat is received for 15 seconds, the node moves to SUSPECT. If a heartbeat arrives while the node is SUSPECT, it goes back to ALIVE. If no heartbeat is received for 30 seconds, the node moves to DEAD and its containers are rescheduled to other nodes. The dead node stays in the cluster state in the DEAD state; if it later starts sending heartbeats again, it is brought back to ALIVE after its old containers are killed (see split-brain prevention).
 
 The SUSPECT state exists to avoid false positives. A single missed heartbeat could be caused by a short network delay, not a real failure. By waiting for 3 missed heartbeats (15 seconds) before acting, the system avoids unnecessary container restarts that would waste resources and cause brief service interruptions.
 
@@ -333,7 +333,7 @@ The worker pulls the Docker image (if not already present), creates a container 
 
 Commands are sent as JSON over TCP. The master uses the node's address (reported in heartbeats) to establish a connection, sends the command and waits for a response. This communication is synchronous, meaning the master waits for the worker to confirm before proceeding. If the connection fails (for example because the worker crashed), the master marks the container as PENDING and tries again later.
 
-The worker integrates with Docker through the Docker SDK for Go. A \texttt{DockerManager} component wraps the Docker client and tracks all containers started by this worker. When the worker shuts down, it stops and removes all its containers automatically. The list of running container IDs is included in each heartbeat, allowing the master to track which containers run on which nodes.
+The worker integrates with Docker through the Docker SDK for Go. A \texttt{DockerManager} component wraps the Docker client and tracks all containers started by this worker. When the worker shuts down, it stops and removes all its containers automatically. The list of running container IDs is included in each heartbeat. The master keeps its own record of container placement from the scheduling decisions it makes, so this list is currently informational.
 
 When starting a container, the worker first pulls the Docker image from a registry (like Docker Hub). If the image is already present on the machine, this step is skipped. Then it creates the container with the resource limits (CPU and RAM) that the master specified. The CPU limit is set using Docker's \texttt{NanoCPUs} field (0.5 CPU = 500,000,000 nanoseconds of CPU time per second). The RAM limit is set using the \texttt{Memory} field in bytes. These limits are enforced by the Linux kernel through a feature called cgroups, which prevents a container from using more resources than it was assigned.
 
@@ -349,12 +349,12 @@ When starting a container, the worker first pulls the Docker image from a regist
 A container goes through the following states:
 
 \begin{itemize}
-    \item \textbf{PENDING}. The container needs to run, but no node has enough resources. It waits until resources become available.
+    \item \textbf{PENDING}. The container needs to run, but no node currently has enough resources. It is created in the PENDING state.
     \item \textbf{SCHEDULED}. A node was found and the container has been assigned. Docker startup is in progress.
     \item \textbf{RUNNING}. Docker started the container successfully. This is the normal operating state.
-    \item \textbf{FAILED}. Docker returned an error (invalid image, port conflict, out of memory). The system will retry on another node.
+    \item \textbf{FAILED}. Docker returned an error (invalid image, port conflict, out of memory). The container is marked FAILED.
     \item \textbf{RESCHEDULING}. The host node died. A fresh container needs to be started on another node.
-    \item \textbf{STOPPED}. The container was stopped intentionally (service deleted or scaled down). This is a final state.
+    \item \textbf{STOPPED}. The container was stopped intentionally when its service was deleted, or replaced during fault recovery. This is a final state.
 \end{itemize}
 
 \section{Security and Audit Architecture}
@@ -389,7 +389,7 @@ In this platform, the secret key used to sign tokens is stored in the master's c
 
 \subsection{Role-Based Access Control}
 
-The platform has three roles with clearly separated permissions. \textbf{ADMIN} has full access and can manage nodes, services, pools, users and audit logs. \textbf{WRITER} can deploy, scale and delete services and can view nodes, pools and audit logs but cannot manage users. \textbf{READER} has read-only access and can view services, nodes, pools and audit logs but cannot create or delete anything.
+The platform has three roles with clearly separated permissions. \textbf{ADMIN} has the broadest access: it can create and delete services, manage users, and view nodes, pools and audit logs. \textbf{WRITER} can deploy and delete services and can view nodes, pools and audit logs but cannot manage users. \textbf{READER} has read-only access and can view services, nodes, pools and audit logs but cannot create or delete anything.
 
 Every protected API endpoint passes through an authentication and authorization middleware. First, it extracts the JWT from the \texttt{Authorization} header. Then it validates the signature and checks that the token has not expired. Next, it extracts the role from the token claims and checks the ACL table to see if that role has permission for the requested action on the requested resource. If the role does not have permission, the API returns 403 Forbidden and logs an AUTH\_DENIED event in the audit log.
 
@@ -412,7 +412,7 @@ The platform runs 3 master nodes for high availability. Only one is the leader a
 
 The leader sends every state change (node added, service created, container started) to all followers via \texttt{AppendEntries} messages. Each follower confirms that it saved the data. This way, every decision is stored on all 3 nodes. The leader waits for a majority of followers to confirm before considering the change committed. With 3 nodes, a majority is 2, so the leader needs only one follower to confirm. This means the cluster can continue working even if one follower is temporarily unreachable.
 
-The followers do not process API requests or receive heartbeats from workers. They are passive copies that only receive data from the leader. Their only purpose is to be ready to take over if the leader fails. This keeps the system simple because all decision-making happens in one place.
+The followers do not process API write requests and do not make scheduling or recovery decisions; only the leader does. Each master, including the followers, still receives worker heartbeats over UDP multicast and updates its own node list. For replicated data (services and containers), followers only apply what the leader commits through Raft. Their main purpose is to be ready to take over if the leader fails. This keeps all decision-making in one place.
 
 \subsection{Leader Failure and Election}
 
@@ -449,7 +449,7 @@ The cluster consists of 3 master nodes forming a Raft quorum. Master 1 is the le
 
 \subsection{Audit Log}
 
-All important actions are recorded in an append-only audit log stored in the cluster state. The following events are tracked:
+All important actions are recorded in an append-only audit log stored in the in-memory cluster state on each master. The log is not replicated through Raft, so each master keeps its own record of the events it observes. The following events are tracked:
 
 \begin{itemize}
     \item \texttt{NODE\_DISCOVERED}. When a new node is detected via its first heartbeat

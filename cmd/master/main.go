@@ -5,9 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"strings"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -35,6 +35,12 @@ func main() {
 	flag.Parse()
 
 	log.Printf("master starting, api=%s, heartbeats=%s, lb=%s, raft=%s", *apiAddr, *multicast, *lbStrategy, *raftAddr)
+
+	if *raftBootstrap {
+		if err := os.RemoveAll(*raftDir); err != nil {
+			log.Printf("warning: could not clean raft dir %s: %v", *raftDir, err)
+		}
+	}
 
 	state := cluster.NewState()
 
@@ -94,6 +100,9 @@ func main() {
 		15*time.Second, // suspect after 15s
 		30*time.Second, // dead after 30s
 		func(nodeID string, containers []*domain.Container) {
+			if !raftNode.IsLeader() {
+				return
+			}
 			log.Printf("recovery: node %s died with %d container(s)", nodeID, len(containers))
 			auditLog.Log("system", audit.EventNodeDead, nodeID, fmt.Sprintf("node died with %d containers", len(containers)))
 			// Node status already set by fault tolerance; no duplicate Raft apply needed

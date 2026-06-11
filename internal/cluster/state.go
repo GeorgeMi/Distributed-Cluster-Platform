@@ -116,6 +116,17 @@ func (s *State) RemoveService(id string) {
 	delete(s.services, id)
 }
 
+func (s *State) SetServiceReplicas(serviceID string, replicas int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	svc, ok := s.services[serviceID]
+	if !ok {
+		return fmt.Errorf("service %s not found", serviceID)
+	}
+	svc.Replicas = replicas
+	return nil
+}
+
 // --- Containers ---
 
 func (s *State) AddContainer(c *domain.Container) {
@@ -138,6 +149,18 @@ func (s *State) GetContainersByNode(nodeID string) []*domain.Container {
 	for _, c := range s.containers {
 		if c.NodeID == nodeID {
 			result = append(result, c)
+		}
+	}
+	return result
+}
+
+func (s *State) GetActiveContainersByNode(nodeID string) []domain.Container {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var result []domain.Container
+	for _, c := range s.containers {
+		if c.NodeID == nodeID && (c.Status == domain.ContainerRunning || c.Status == domain.ContainerScheduled) {
+			result = append(result, *c)
 		}
 	}
 	return result
@@ -202,6 +225,11 @@ func (s *State) AssignNodeToPool(nodeID string, node *domain.Node) {
 	defer s.mu.Unlock()
 	for _, pool := range s.pools {
 		if pool.MatchesNode(*node) {
+			for _, existing := range pool.NodeIDs {
+				if existing == nodeID {
+					return
+				}
+			}
 			pool.NodeIDs = append(pool.NodeIDs, nodeID)
 			return
 		}
@@ -271,4 +299,61 @@ func (s *State) GetAuditLog(filter func(domain.AuditEntry) bool) []domain.AuditE
 		}
 	}
 	return result
+}
+
+type Snapshot struct {
+	Nodes      []*domain.Node         `json:"nodes"`
+	Services   []*domain.Service      `json:"services"`
+	Containers []*domain.Container    `json:"containers"`
+	Pools      []*domain.ResourcePool `json:"pools"`
+	Users      []*domain.User         `json:"users"`
+	Audit      []domain.AuditEntry    `json:"audit"`
+}
+
+func (s *State) Snapshot() Snapshot {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	snap := Snapshot{Audit: append([]domain.AuditEntry(nil), s.audit...)}
+	for _, n := range s.nodes {
+		snap.Nodes = append(snap.Nodes, n)
+	}
+	for _, svc := range s.services {
+		snap.Services = append(snap.Services, svc)
+	}
+	for _, c := range s.containers {
+		snap.Containers = append(snap.Containers, c)
+	}
+	for _, p := range s.pools {
+		snap.Pools = append(snap.Pools, p)
+	}
+	for _, u := range s.users {
+		snap.Users = append(snap.Users, u)
+	}
+	return snap
+}
+
+func (s *State) Restore(snap Snapshot) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.nodes = make(map[string]*domain.Node, len(snap.Nodes))
+	for _, n := range snap.Nodes {
+		s.nodes[n.ID] = n
+	}
+	s.services = make(map[string]*domain.Service, len(snap.Services))
+	for _, svc := range snap.Services {
+		s.services[svc.ID] = svc
+	}
+	s.containers = make(map[string]*domain.Container, len(snap.Containers))
+	for _, c := range snap.Containers {
+		s.containers[c.ID] = c
+	}
+	s.pools = make(map[string]*domain.ResourcePool, len(snap.Pools))
+	for _, p := range snap.Pools {
+		s.pools[p.ID] = p
+	}
+	s.users = make(map[string]*domain.User, len(snap.Users))
+	for _, u := range snap.Users {
+		s.users[u.ID] = u
+	}
+	s.audit = append([]domain.AuditEntry(nil), snap.Audit...)
 }

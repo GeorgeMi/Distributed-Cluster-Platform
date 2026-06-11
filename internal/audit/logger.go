@@ -10,13 +10,13 @@ import (
 
 // Event types
 const (
-	EventNodeDiscovered      = "NODE_DISCOVERED"
-	EventNodeDead            = "NODE_DEAD"
-	EventServiceCreate       = "SERVICE_CREATE"
-	EventServiceDelete       = "SERVICE_DELETE"
+	EventNodeDiscovered       = "NODE_DISCOVERED"
+	EventNodeDead             = "NODE_DEAD"
+	EventServiceCreate        = "SERVICE_CREATE"
+	EventServiceDelete        = "SERVICE_DELETE"
 	EventContainerRescheduled = "CONTAINER_RESCHEDULED"
-	EventAuthDenied          = "AUTH_DENIED"
-	EventLogin               = "LOGIN"
+	EventAuthDenied           = "AUTH_DENIED"
+	EventLogin                = "LOGIN"
 )
 
 // Logger writes audit entries to the cluster state.

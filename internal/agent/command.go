@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 )
 
 // Command types sent from master to worker
@@ -106,11 +107,13 @@ func (s *CommandServer) handleConn(conn net.Conn) {
 
 // SendCommand sends a command from master to a worker node via TCP.
 func SendCommand(nodeAddr string, cmd Command) (CommandResponse, error) {
-	conn, err := net.Dial("tcp", nodeAddr)
+	conn, err := net.DialTimeout("tcp", nodeAddr, 5*time.Second)
 	if err != nil {
 		return CommandResponse{}, fmt.Errorf("connect to %s: %w", nodeAddr, err)
 	}
 	defer conn.Close()
+
+	conn.SetDeadline(time.Now().Add(30 * time.Second))
 
 	encoder := json.NewEncoder(conn)
 	if err := encoder.Encode(cmd); err != nil {

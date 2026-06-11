@@ -1,0 +1,57 @@
+\begin{MintedVerbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{package}\PYG{+w}{ }\PYG{n+nx}{scheduler}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}fmt\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}log\PYGZdq{}}
+
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/cluster\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/domain\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/loadbalancer\PYGZdq{}}
+\PYG{p}{)}
+
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{Scheduler}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{state}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{cluster}\PYG{p}{.}\PYG{n+nx}{State}
+\PYG{+w}{	}\PYG{n+nx}{lb}\PYG{+w}{    }\PYG{n+nx}{loadbalancer}\PYG{p}{.}\PYG{n+nx}{LoadBalancer}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{n+nx}{NewScheduler}\PYG{p}{(}\PYG{n+nx}{state}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{cluster}\PYG{p}{.}\PYG{n+nx}{State}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{lb}\PYG{+w}{ }\PYG{n+nx}{loadbalancer}\PYG{p}{.}\PYG{n+nx}{LoadBalancer}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Scheduler}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{Scheduler}\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{state}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{state}\PYG{p}{,}
+\PYG{+w}{		}\PYG{n+nx}{lb}\PYG{p}{:}\PYG{+w}{    }\PYG{n+nx}{lb}\PYG{p}{,}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// Schedule finds the best node for a service and returns it.}
+\PYG{c+c1}{// It filters nodes in the service\PYGZsq{}s pool that are alive and have enough resources.}
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{s}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Scheduler}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Schedule}\PYG{p}{(}\PYG{n+nx}{service}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Service}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kt}{error}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{poolNodes}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{GetPoolNodes}\PYG{p}{(}\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{PoolID}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nx}{poolNodes}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{fmt}\PYG{p}{.}\PYG{n+nx}{Errorf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}no nodes in pool \PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{PoolID}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{c+c1}{// Filter: alive + enough resources}
+\PYG{+w}{	}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{candidates}\PYG{+w}{ }\PYG{p}{[}\PYG{p}{]}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}
+\PYG{+w}{	}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{poolNodes}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{p}{.}\PYG{n+nx}{IsAlive}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZam{}\PYGZam{}}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{p}{.}\PYG{n+nx}{AvailableCPU}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZgt{}=}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredCPU}\PYG{+w}{ }\PYG{o}{\PYGZam{}\PYGZam{}}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{p}{.}\PYG{n+nx}{AvailableRAM}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZgt{}=}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredRAM}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n+nx}{c}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{n}
+\PYG{+w}{			}\PYG{n+nx}{c}\PYG{p}{.}\PYG{n+nx}{Containers}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{GetActiveContainersByNode}\PYG{p}{(}\PYG{n+nx}{n}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{)}
+\PYG{+w}{			}\PYG{n+nx}{candidates}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nb}{append}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{c}\PYG{p}{)}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{fmt}\PYG{p}{.}\PYG{n+nx}{Errorf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}no nodes with enough resources (need \PYGZpc{}.1f CPU, \PYGZpc{}d MB RAM)\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredCPU}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredRAM}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{n+nx}{node}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{lb}\PYG{p}{.}\PYG{n+nx}{SelectNode}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{fmt}\PYG{p}{.}\PYG{n+nx}{Errorf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}load balancer returned no node\PYGZdq{}}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}scheduler: selected node \PYGZpc{}s for service \PYGZpc{}s (\PYGZpc{}.1f CPU, \PYGZpc{}d MB RAM available)\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{Name}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{AvailableCPU}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{AvailableRAM}\PYG{p}{(}\PYG{p}{)}\PYG{p}{)}
+
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kc}{nil}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

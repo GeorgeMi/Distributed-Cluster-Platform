@@ -72,11 +72,11 @@
 \contentsline {chapter}{Annexes}{37}{chapter*.21}%
 \contentsline {section}{\numberline {1}Domain Models}{37}{section.0.1}%
 \contentsline {section}{\numberline {2}Cluster State}{40}{section.0.2}%
-\contentsline {section}{\numberline {3}Heartbeat Receiver}{46}{section.0.3}%
-\contentsline {section}{\numberline {4}Fault Tolerance}{48}{section.0.4}%
-\contentsline {section}{\numberline {5}Load Balancer}{51}{section.0.5}%
-\contentsline {section}{\numberline {6}Scheduler}{53}{section.0.6}%
-\contentsline {section}{\numberline {7}REST API Server}{55}{section.0.7}%
-\contentsline {section}{\numberline {8}Security -- JWT and ACL}{63}{section.0.8}%
-\contentsline {section}{\numberline {9}Docker Integration}{67}{section.0.9}%
-\contentsline {section}{\numberline {10}Raft FSM}{71}{section.0.10}%
+\contentsline {section}{\numberline {3}Heartbeat Receiver}{47}{section.0.3}%
+\contentsline {section}{\numberline {4}Fault Tolerance}{49}{section.0.4}%
+\contentsline {section}{\numberline {5}Load Balancer}{52}{section.0.5}%
+\contentsline {section}{\numberline {6}Scheduler}{54}{section.0.6}%
+\contentsline {section}{\numberline {7}REST API Server}{56}{section.0.7}%
+\contentsline {section}{\numberline {8}Security -- JWT and ACL}{65}{section.0.8}%
+\contentsline {section}{\numberline {9}Docker Integration}{69}{section.0.9}%
+\contentsline {section}{\numberline {10}Raft FSM}{73}{section.0.10}%

@@ -33,7 +33,9 @@ func (s *Scheduler) Schedule(service *domain.Service) (*domain.Node, error) {
 	var candidates []*domain.Node
 	for _, n := range poolNodes {
 		if n.IsAlive() && n.AvailableCPU() >= service.RequiredCPU && n.AvailableRAM() >= service.RequiredRAM {
-			candidates = append(candidates, n)
+			c := *n
+			c.Containers = s.state.GetActiveContainersByNode(n.ID)
+			candidates = append(candidates, &c)
 		}
 	}
 

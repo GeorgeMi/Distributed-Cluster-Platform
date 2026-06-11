@@ -48,8 +48,8 @@ func (s *Server) Start() {
 	mux.HandleFunc("GET /nodes", s.auth("nodes", "read", s.getNodes))
 	mux.HandleFunc("GET /pools", s.auth("pools", "read", s.getPools))
 	mux.HandleFunc("GET /services", s.auth("services", "read", s.getServices))
-	mux.HandleFunc("POST /services", s.auth("services", "create", s.createService))
-	mux.HandleFunc("DELETE /services/{id}", s.auth("services", "delete", s.deleteService))
+	mux.HandleFunc("POST /services", s.auth("services", "create", s.leaderOnly(s.createService)))
+	mux.HandleFunc("DELETE /services/{id}", s.auth("services", "delete", s.leaderOnly(s.deleteService)))
 	mux.HandleFunc("GET /audit", s.auth("audit", "read", s.getAudit))
 
 	log.Printf("api: listening on %s", s.addr)
@@ -83,6 +83,19 @@ func (s *Server) auth(resource, action string, next http.HandlerFunc) http.Handl
 			return
 		}
 
+		next(w, r)
+	}
+}
+
+func (s *Server) leaderOnly(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if s.raftNode != nil && !s.raftNode.IsLeader() {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{
+				"error":      "not the leader; retry against the current leader",
+				"leaderRaft": s.raftNode.LeaderAddress(),
+			})
+			return
+		}
 		next(w, r)
 	}
 }
@@ -171,7 +184,13 @@ func (s *Server) refresh(w http.ResponseWriter, r *http.Request) {
 // GET /nodes
 func (s *Server) getNodes(w http.ResponseWriter, r *http.Request) {
 	nodes := s.state.GetAllNodes()
-	writeJSON(w, http.StatusOK, nodes)
+	out := make([]*domain.Node, 0, len(nodes))
+	for _, n := range nodes {
+		view := *n
+		view.Containers = s.state.GetActiveContainersByNode(n.ID)
+		out = append(out, &view)
+	}
+	writeJSON(w, http.StatusOK, out)
 }
 
 // GET /pools
@@ -224,12 +243,16 @@ func (s *Server) createService(w http.ResponseWriter, r *http.Request) {
 		Cmd:             req.Cmd,
 	}
 	if s.raftNode != nil {
-		s.raftNode.Apply(cluster.LogAddService, svc)
+		if err := s.raftNode.Apply(cluster.LogAddService, svc); err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "failed to replicate service: " + err.Error()})
+			return
+		}
 	} else {
 		s.state.AddService(svc)
 	}
 
 	var containers []map[string]string
+	runningCount := 0
 	for i := 0; i < req.Replicas; i++ {
 		node, err := s.scheduler.Schedule(svc)
 		if err != nil {
@@ -265,24 +288,27 @@ func (s *Server) createService(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			log.Printf("api: failed to start container on %s: %v", node.ID, err)
-			s.state.SetContainerStatus(c.ID, domain.ContainerPending)
+			s.applySetContainerStatus(c.ID, domain.ContainerPending)
 			containers = append(containers, map[string]string{"id": c.ID, "status": domain.ContainerPending})
 			continue
 		}
 
 		if !resp.Success {
 			log.Printf("api: worker %s returned error: %s", node.ID, resp.Error)
-			s.state.SetContainerStatus(c.ID, domain.ContainerFailed)
+			s.applySetContainerStatus(c.ID, domain.ContainerFailed)
 			containers = append(containers, map[string]string{"id": c.ID, "status": domain.ContainerFailed, "error": resp.Error})
 			continue
 		}
 
 		c.DockerID = resp.ContainerID
 		c.Status = domain.ContainerRunning
-		svc.Replicas++
+		s.applySetContainerStatus(c.ID, domain.ContainerRunning)
+		runningCount++
 		containers = append(containers, map[string]string{"id": c.ID, "nodeID": node.ID, "status": domain.ContainerRunning})
 		log.Printf("api: service %s replica %d started on node %s", svc.Name, i+1, node.ID)
 	}
+
+	s.applySetServiceReplicas(svc.ID, runningCount)
 
 	s.audit.Log("", audit.EventServiceCreate, svc.ID, fmt.Sprintf("service %s created with %d replicas", svc.Name, req.Replicas))
 
@@ -314,7 +340,7 @@ func (s *Server) deleteService(w http.ResponseWriter, r *http.Request) {
 				})
 			}
 		}
-		s.state.SetContainerStatus(c.ID, domain.ContainerStopped)
+		s.applySetContainerStatus(c.ID, domain.ContainerStopped)
 	}
 
 	s.applyRemoveService(serviceID)
@@ -348,12 +374,28 @@ func (s *Server) applyAddContainer(c *domain.Container) {
 	}
 }
 
+func (s *Server) applySetContainerStatus(id, status string) {
+	if s.raftNode != nil {
+		s.raftNode.Apply(cluster.LogSetContainerStatus, map[string]string{"id": id, "status": status})
+	} else {
+		s.state.SetContainerStatus(id, status)
+	}
+}
+
 // applyRemoveService removes a service through Raft or directly.
 func (s *Server) applyRemoveService(id string) {
 	if s.raftNode != nil {
 		s.raftNode.Apply(cluster.LogRemoveService, map[string]string{"id": id})
 	} else {
 		s.state.RemoveService(id)
+	}
+}
+
+func (s *Server) applySetServiceReplicas(id string, replicas int) {
+	if s.raftNode != nil {
+		s.raftNode.Apply(cluster.LogSetServiceReplicas, map[string]any{"id": id, "replicas": replicas})
+	} else {
+		s.state.SetServiceReplicas(id, replicas)
 	}
 }
 

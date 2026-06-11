@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/GeorgeMi/Distributed-Cluster-Platform/internal/agent"
 	"github.com/GeorgeMi/Distributed-Cluster-Platform/internal/cluster"
 	"github.com/GeorgeMi/Distributed-Cluster-Platform/internal/domain"
 )
@@ -93,6 +94,13 @@ func (t *Tolerance) HandleLateHeartbeat(nodeID string) {
 	}
 
 	log.Printf("fault tolerance: late heartbeat from DEAD node %s, sending KillContainers", nodeID)
+
+	addr := node.Address
+	go func() {
+		if _, err := agent.SendCommand(addr, agent.Command{Type: agent.CmdKillContainers}); err != nil {
+			log.Printf("fault tolerance: failed to send KillContainers to %s: %v", nodeID, err)
+		}
+	}()
 
 	// Mark containers on this node as stopped (they were already rescheduled)
 	containers := t.state.GetContainersByNode(nodeID)

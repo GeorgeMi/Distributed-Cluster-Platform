@@ -23,14 +23,14 @@ All objectives proposed in the introduction have been achieved:
 
 Compared to Kubernetes, Docker Swarm and Nomad (analyzed in Chapter 2), the proposed platform is simpler to understand and deploy. It implements the same fundamental concepts (heartbeats, consensus, scheduling, RBAC) but in a single Go module with minimal dependencies. This makes it suitable for educational purposes and smaller deployments where Kubernetes would be too complex.
 
-The main trade-off is that the platform lacks features expected in production systems: persistent storage, service networking, horizontal scaling of masters and support for multiple container runtimes.
+The main trade-off is that the platform lacks features expected in production systems: a durable and replicated audit log, service networking, horizontal scaling of masters and support for multiple container runtimes.
 
 \section{Future Work}
 
 Several improvements could extend the platform:
 
 \begin{itemize}
-    \item \textbf{Persistent state}. Currently the cluster state is stored in memory. Persisting it to disk through the Raft log would allow the cluster to survive full restarts.
+    \item \textbf{Durable audit and full recovery}. Service and container state is already persisted through the Raft log, so a master rebuilds it on restart. The audit log, however, is kept only in memory and is not replicated; persisting and replicating it would be a useful next step.
     \item \textbf{Service networking}. Adding DNS-based service discovery and ingress routing would allow containers to communicate with each other by name.
     \item \textbf{Auto-scaling}. Automatically adjusting the number of replicas based on CPU or memory usage.
     \item \textbf{Web dashboard}. A graphical interface for monitoring the cluster, deploying services and viewing logs.

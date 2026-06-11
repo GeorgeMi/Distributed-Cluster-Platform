@@ -42,6 +42,7 @@ func NewRaftNode(cfg RaftConfig, state *State) (*RaftNode, error) {
 	raftCfg.LocalID = raft.ServerID(cfg.NodeID)
 	raftCfg.SnapshotInterval = 30 * time.Second
 	raftCfg.SnapshotThreshold = 100
+	raftCfg.LogLevel = "INFO"
 
 	// Create data directory
 	if err := os.MkdirAll(cfg.DataDir, 0755); err != nil {

@@ -23,6 +23,7 @@ const (
 	LogSetNodeStatus      = "SetNodeStatus"
 	LogAddService         = "AddService"
 	LogRemoveService      = "RemoveService"
+	LogSetServiceReplicas = "SetServiceReplicas"
 	LogAddContainer       = "AddContainer"
 	LogRemoveContainer    = "RemoveContainer"
 	LogSetContainerStatus = "SetContainerStatus"
@@ -54,7 +55,9 @@ func (f *FSM) Apply(l *raft.Log) any {
 		log.Printf("fsm: apply AddNode %s", node.ID)
 
 	case LogRemoveNode:
-		var args struct{ ID string `json:"id"` }
+		var args struct {
+			ID string `json:"id"`
+		}
 		json.Unmarshal(entry.Data, &args)
 		f.state.RemoveNode(args.ID)
 
@@ -73,9 +76,19 @@ func (f *FSM) Apply(l *raft.Log) any {
 		log.Printf("fsm: apply AddService %s", svc.Name)
 
 	case LogRemoveService:
-		var args struct{ ID string `json:"id"` }
+		var args struct {
+			ID string `json:"id"`
+		}
 		json.Unmarshal(entry.Data, &args)
 		f.state.RemoveService(args.ID)
+
+	case LogSetServiceReplicas:
+		var args struct {
+			ID       string `json:"id"`
+			Replicas int    `json:"replicas"`
+		}
+		json.Unmarshal(entry.Data, &args)
+		f.state.SetServiceReplicas(args.ID, args.Replicas)
 
 	case LogAddContainer:
 		var c domain.Container
@@ -83,7 +96,9 @@ func (f *FSM) Apply(l *raft.Log) any {
 		f.state.AddContainer(&c)
 
 	case LogRemoveContainer:
-		var args struct{ ID string `json:"id"` }
+		var args struct {
+			ID string `json:"id"`
+		}
 		json.Unmarshal(entry.Data, &args)
 		f.state.RemoveContainer(args.ID)
 
@@ -102,28 +117,29 @@ func (f *FSM) Apply(l *raft.Log) any {
 	return nil
 }
 
-// Snapshot returns a snapshot of the current state.
 func (f *FSM) Snapshot() (raft.FSMSnapshot, error) {
-	return &fsmSnapshot{state: f.state}, nil
+	return &fsmSnapshot{data: f.state.Snapshot()}, nil
 }
 
-// Restore replaces the state from a snapshot.
 func (f *FSM) Restore(rc io.ReadCloser) error {
 	defer rc.Close()
-	log.Println("fsm: restore called")
+	var snap Snapshot
+	if err := json.NewDecoder(rc).Decode(&snap); err != nil {
+		return fmt.Errorf("snapshot decode: %w", err)
+	}
+	f.state.Restore(snap)
+	log.Printf("fsm: restored state (%d nodes, %d services, %d containers)",
+		len(snap.Nodes), len(snap.Services), len(snap.Containers))
 	return nil
 }
 
 type fsmSnapshot struct {
-	state *State
+	data Snapshot
 }
 
 func (s *fsmSnapshot) Persist(sink raft.SnapshotSink) error {
 	defer sink.Close()
-	data, err := json.Marshal(map[string]any{
-		"nodes":    s.state.GetAllNodes(),
-		"services": s.state.GetAllServices(),
-	})
+	data, err := json.Marshal(s.data)
 	if err != nil {
 		sink.Cancel()
 		return fmt.Errorf("snapshot marshal: %w", err)

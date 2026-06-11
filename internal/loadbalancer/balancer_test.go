@@ -47,8 +47,8 @@ func TestWeighted_SelectsNodeWithMostResources(t *testing.T) {
 	lb := &WeightedLB{}
 	nodes := []*domain.Node{
 		makeNode("n1", 8, 6, 16384, 12000, 0), // 25% CPU free, 26% RAM free
-		makeNode("n2", 8, 1, 16384, 2000, 0),   // 87% CPU free, 87% RAM free
-		makeNode("n3", 8, 4, 16384, 8000, 0),   // 50% CPU free, 51% RAM free
+		makeNode("n2", 8, 1, 16384, 2000, 0),  // 87% CPU free, 87% RAM free
+		makeNode("n3", 8, 4, 16384, 8000, 0),  // 50% CPU free, 51% RAM free
 	}
 
 	result := lb.SelectNode(nodes, &domain.Service{})

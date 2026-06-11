@@ -18,7 +18,8 @@ import (
 type DockerManager struct {
 	cli        *client.Client
 	mu         sync.Mutex
-	containers map[string]string // serviceID -> dockerContainerID
+	containers map[string][]string // serviceID -> dockerContainerIDs
+	seq        int
 }
 
 func NewDockerManager() (*DockerManager, error) {
@@ -28,7 +29,7 @@ func NewDockerManager() (*DockerManager, error) {
 	}
 	return &DockerManager{
 		cli:        cli,
-		containers: make(map[string]string),
+		containers: make(map[string][]string),
 	}, nil
 }
 
@@ -80,7 +81,10 @@ func (dm *DockerManager) StartContainer(cmd Command) (string, error) {
 	}
 
 	// Create container
-	containerName := fmt.Sprintf("dcp-%s", cmd.ServiceID)
+	dm.mu.Lock()
+	dm.seq++
+	containerName := fmt.Sprintf("dcp-%s-%d", cmd.ServiceID, dm.seq)
+	dm.mu.Unlock()
 	resp, err := dm.cli.ContainerCreate(ctx, containerConfig, hostConfig, nil, nil, containerName)
 	if err != nil {
 		return "", fmt.Errorf("create container: %w", err)
@@ -92,7 +96,7 @@ func (dm *DockerManager) StartContainer(cmd Command) (string, error) {
 	}
 
 	dm.mu.Lock()
-	dm.containers[cmd.ServiceID] = resp.ID
+	dm.containers[cmd.ServiceID] = append(dm.containers[cmd.ServiceID], resp.ID)
 	dm.mu.Unlock()
 
 	log.Printf("docker: started container %s (image=%s, name=%s)", resp.ID[:12], cmd.Image, containerName)
@@ -106,9 +110,9 @@ func (dm *DockerManager) KillContainersByService(serviceID string) error {
 
 	dm.mu.Lock()
 	var toKill []string
-	for svcID, containerID := range dm.containers {
+	for svcID, ids := range dm.containers {
 		if serviceID == "" || svcID == serviceID {
-			toKill = append(toKill, containerID)
+			toKill = append(toKill, ids...)
 			delete(dm.containers, svcID)
 		}
 	}
@@ -133,14 +137,15 @@ func (dm *DockerManager) KillAllContainers() error {
 	ctx := context.Background()
 
 	dm.mu.Lock()
-	ids := make(map[string]string)
-	for k, v := range dm.containers {
-		ids[k] = v
+	var all []string
+	for _, ids := range dm.containers {
+		all = append(all, ids...)
 	}
+	dm.containers = make(map[string][]string)
 	dm.mu.Unlock()
 
-	for svcID, containerID := range ids {
-		log.Printf("docker: stopping container %s (service=%s)", containerID[:12], svcID)
+	for _, containerID := range all {
+		log.Printf("docker: stopping container %s", containerID[:12])
 		if err := dm.cli.ContainerStop(ctx, containerID, container.StopOptions{}); err != nil {
 			log.Printf("docker: stop %s: %v", containerID[:12], err)
 		}
@@ -149,11 +154,7 @@ func (dm *DockerManager) KillAllContainers() error {
 		}
 	}
 
-	dm.mu.Lock()
-	dm.containers = make(map[string]string)
-	dm.mu.Unlock()
-
-	log.Printf("docker: killed %d container(s)", len(ids))
+	log.Printf("docker: killed %d container(s)", len(all))
 	return nil
 }
 
@@ -162,8 +163,8 @@ func (dm *DockerManager) RunningContainerIDs() []string {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 	var ids []string
-	for _, id := range dm.containers {
-		ids = append(ids, id)
+	for _, list := range dm.containers {
+		ids = append(ids, list...)
 	}
 	return ids
 }
