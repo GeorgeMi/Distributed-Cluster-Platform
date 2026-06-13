@@ -44,6 +44,20 @@ func TestSchedule_NotEnoughResources(t *testing.T) {
 	}
 }
 
+func TestPlan_AllOrNothing(t *testing.T) {
+	state := setupState()
+	sched := NewScheduler(state, &loadbalancer.LeastConnectionsLB{})
+
+	// The node has 6 CPU available: one replica of 4 CPU fits, two do not.
+	svc := &domain.Service{PoolID: "pool-1", RequiredCPU: 4, RequiredRAM: 1024}
+	if _, err := sched.Plan(svc, 1); err != nil {
+		t.Fatalf("one replica should fit: %v", err)
+	}
+	if _, err := sched.Plan(svc, 2); err == nil {
+		t.Error("expected error: two replicas need 8 CPU but only 6 are available")
+	}
+}
+
 func TestSchedule_EmptyPool(t *testing.T) {
 	state := cluster.NewState()
 	state.AddPool(&domain.ResourcePool{ID: "empty", Name: "empty", MinCPU: 0, MaxCPU: 128, MinRAM: 0, MaxRAM: 65536})

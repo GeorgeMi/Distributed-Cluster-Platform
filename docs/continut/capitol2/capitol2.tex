@@ -10,7 +10,7 @@ A distributed system is a collection of independent computers that appear to the
 \begin{itemize}
     \item \textbf{Partial failure}. Some nodes can fail while others continue to work. The system must handle this without stopping entirely.
     \item \textbf{No global clock}. Each node has its own clock and there is no single source of time for the entire system.
-    \item \textbf{Network unreliability}. Messages between nodes can be delayed, lost, or delivered out of order.
+    \item \textbf{Network unreliability}. Messages between nodes can be delayed, lost or delivered out of order.
 \end{itemize}
 
 \subsection{Node Discovery and Heartbeats}
@@ -49,7 +49,7 @@ Load balancing distributes work across multiple nodes to avoid overloading any s
     \item \textbf{Weighted}. Nodes with more available resources receive more work.
 \end{itemize}
 
-The proposed platform implements Least Connections and Weighted strategies with a pluggable interface, allowing new strategies to be added without modifying existing code.
+The proposed platform implements Least Connections and Weighted strategies with a pluggable interface, allowing new strategies to be added without modifying existing code. In the proposed platform, the number of running containers on a node is used as its connection count.
 
 \subsection{Containerization}
 
@@ -161,4 +161,4 @@ The existing platforms are mature and feature-rich, but they come with significa
 
 The proposed platform fills a gap by implementing the core distributed systems mechanisms in a single, self-contained system. It covers heartbeat-based node discovery using UDP multicast, automatic resource pool allocation, pluggable load balancing with two strategies, fault tolerance with container recovery and split-brain prevention, JWT-based authentication with refresh tokens, role-based access control with three permission levels and an append-only audit log. The cluster state is replicated across multiple master nodes using the Raft consensus protocol.
 
-Unlike the existing solutions, the platform is designed with simplicity as a primary goal. The entire codebase is a single Go module with minimal external dependencies. This makes it suitable for educational use, where understanding the underlying concepts is more important than production readiness, and for smaller deployments where Kubernetes would introduce unnecessary complexity.
+Unlike the existing solutions, the platform is designed with simplicity as a primary goal. The entire codebase is a single Go module with minimal external dependencies. This makes it suitable for educational use, where understanding the underlying concepts is more important than production readiness and for smaller deployments where Kubernetes would introduce unnecessary complexity.

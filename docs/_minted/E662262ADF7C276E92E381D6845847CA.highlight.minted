@@ -1,0 +1,108 @@
+\begin{MintedVerbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{package}\PYG{+w}{ }\PYG{n+nx}{scheduler}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}fmt\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}log\PYGZdq{}}
+
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/cluster\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/domain\PYGZdq{}}
+\PYG{+w}{	}\PYG{l+s}{\PYGZdq{}github.com/GeorgeMi/Distributed\PYGZhy{}Cluster\PYGZhy{}Platform/internal/loadbalancer\PYGZdq{}}
+\PYG{p}{)}
+
+\PYG{k+kd}{type}\PYG{+w}{ }\PYG{n+nx}{Scheduler}\PYG{+w}{ }\PYG{k+kd}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{state}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{cluster}\PYG{p}{.}\PYG{n+nx}{State}
+\PYG{+w}{	}\PYG{n+nx}{lb}\PYG{+w}{    }\PYG{n+nx}{loadbalancer}\PYG{p}{.}\PYG{n+nx}{LoadBalancer}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{n+nx}{NewScheduler}\PYG{p}{(}\PYG{n+nx}{state}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{cluster}\PYG{p}{.}\PYG{n+nx}{State}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{lb}\PYG{+w}{ }\PYG{n+nx}{loadbalancer}\PYG{p}{.}\PYG{n+nx}{LoadBalancer}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Scheduler}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{Scheduler}\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{n+nx}{state}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{state}\PYG{p}{,}
+\PYG{+w}{		}\PYG{n+nx}{lb}\PYG{p}{:}\PYG{+w}{    }\PYG{n+nx}{lb}\PYG{p}{,}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// Plan finds a node for every one of the n replicas, or fails without}
+\PYG{c+c1}{// assigning anything (all\PYGZhy{}or\PYGZhy{}nothing). The resources and ports consumed by}
+\PYG{c+c1}{// each replica are subtracted from the chosen node\PYGZsq{}s free capacity before}
+\PYG{c+c1}{// the next replica is placed, so a single request can never oversubscribe}
+\PYG{c+c1}{// a node.}
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{s}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Scheduler}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Plan}\PYG{p}{(}\PYG{n+nx}{service}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Service}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{+w}{ }\PYG{k+kt}{int}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{(}\PYG{p}{[}\PYG{p}{]}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kt}{error}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{poolNodes}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{GetPoolNodes}\PYG{p}{(}\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{PoolID}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nx}{poolNodes}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{fmt}\PYG{p}{.}\PYG{n+nx}{Errorf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}no nodes in pool \PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{PoolID}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{c+c1}{// Working copies of the alive nodes; the plan mutates these copies,}
+\PYG{+w}{	}\PYG{c+c1}{// never the real cluster state.}
+\PYG{+w}{	}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{working}\PYG{+w}{ }\PYG{p}{[}\PYG{p}{]}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}
+\PYG{+w}{	}\PYG{n+nx}{usedPorts}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nb}{make}\PYG{p}{(}\PYG{k+kd}{map}\PYG{p}{[}\PYG{k+kt}{string}\PYG{p}{]}\PYG{k+kd}{map}\PYG{p}{[}\PYG{k+kt}{int}\PYG{p}{]}\PYG{k+kt}{bool}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{pn}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{poolNodes}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{if}\PYG{+w}{ }\PYG{p}{!}\PYG{n+nx}{pn}\PYG{p}{.}\PYG{n+nx}{IsAlive}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{k}{continue}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{c}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{pn}
+\PYG{+w}{		}\PYG{n+nx}{c}\PYG{p}{.}\PYG{n+nx}{Containers}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{GetActiveContainersByNode}\PYG{p}{(}\PYG{n+nx}{pn}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{working}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nb}{append}\PYG{p}{(}\PYG{n+nx}{working}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n+nx}{c}\PYG{p}{)}
+\PYG{+w}{		}\PYG{n+nx}{ports}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nb}{make}\PYG{p}{(}\PYG{k+kd}{map}\PYG{p}{[}\PYG{k+kt}{int}\PYG{p}{]}\PYG{k+kt}{bool}\PYG{p}{)}
+\PYG{+w}{		}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{ctr}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{c}\PYG{p}{.}\PYG{n+nx}{Containers}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{svc}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{ok}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{state}\PYG{p}{.}\PYG{n+nx}{GetService}\PYG{p}{(}\PYG{n+nx}{ctr}\PYG{p}{.}\PYG{n+nx}{ServiceID}\PYG{p}{)}\PYG{p}{;}\PYG{+w}{ }\PYG{n+nx}{ok}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{				}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{p}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{svc}\PYG{p}{.}\PYG{n+nx}{Ports}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{					}\PYG{n+nx}{ports}\PYG{p}{[}\PYG{n+nx}{p}\PYG{p}{]}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{k+kc}{true}
+\PYG{+w}{				}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{			}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{usedPorts}\PYG{p}{[}\PYG{n+nx}{c}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{]}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nx}{ports}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{	}\PYG{n+nx}{plan}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nb}{make}\PYG{p}{(}\PYG{p}{[}\PYG{p}{]}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{i}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}\PYG{+w}{ }\PYG{n+nx}{i}\PYG{+w}{ }\PYG{p}{\PYGZlt{}}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{p}{;}\PYG{+w}{ }\PYG{n+nx}{i}\PYG{o}{++}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{candidates}\PYG{+w}{ }\PYG{p}{[}\PYG{p}{]}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}
+\PYG{+w}{		}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{c}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{working}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{c}\PYG{p}{.}\PYG{n+nx}{AvailableCPU}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZgt{}=}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredCPU}\PYG{+w}{ }\PYG{o}{\PYGZam{}\PYGZam{}}\PYG{+w}{ }\PYG{n+nx}{c}\PYG{p}{.}\PYG{n+nx}{AvailableRAM}\PYG{p}{(}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZgt{}=}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredRAM}\PYG{+w}{ }\PYG{o}{\PYGZam{}\PYGZam{}}
+\PYG{+w}{				}\PYG{p}{!}\PYG{n+nx}{portConflict}\PYG{p}{(}\PYG{n+nx}{usedPorts}\PYG{p}{[}\PYG{n+nx}{c}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{]}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{Ports}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{				}\PYG{n+nx}{candidates}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nb}{append}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{c}\PYG{p}{)}
+\PYG{+w}{			}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{fmt}\PYG{p}{.}\PYG{n+nx}{Errorf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}can place only \PYGZpc{}d of \PYGZpc{}d replicas (need \PYGZpc{}.1f CPU, \PYGZpc{}d MB RAM each)\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{				}\PYG{n+nx}{i}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{n}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredCPU}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredRAM}\PYG{p}{)}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{node}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{lb}\PYG{p}{.}\PYG{n+nx}{SelectNode}\PYG{p}{(}\PYG{n+nx}{candidates}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{)}
+\PYG{+w}{		}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{fmt}\PYG{p}{.}\PYG{n+nx}{Errorf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}load balancer returned no node\PYGZdq{}}\PYG{p}{)}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{UsedCPU}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredCPU}
+\PYG{+w}{		}\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{UsedRAM}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{RequiredRAM}
+\PYG{+w}{		}\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{Containers}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nb}{append}\PYG{p}{(}\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{Containers}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Container}\PYG{p}{\PYGZob{}}\PYG{n+nx}{ServiceID}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{Status}\PYG{p}{:}\PYG{+w}{ }\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{ContainerScheduled}\PYG{p}{\PYGZcb{}}\PYG{p}{)}
+\PYG{+w}{		}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{p}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{Ports}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n+nx}{usedPorts}\PYG{p}{[}\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{]}\PYG{p}{[}\PYG{n+nx}{p}\PYG{p}{]}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{k+kc}{true}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{n+nx}{plan}\PYG{+w}{ }\PYG{p}{=}\PYG{+w}{ }\PYG{n+nb}{append}\PYG{p}{(}\PYG{n+nx}{plan}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{n+nx}{plan}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kc}{nil}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// Schedule finds the best node for a single replica of the service.}
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nx}{s}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{Scheduler}\PYG{p}{)}\PYG{+w}{ }\PYG{n+nx}{Schedule}\PYG{p}{(}\PYG{n+nx}{service}\PYG{+w}{ }\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Service}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{*}\PYG{n+nx}{domain}\PYG{p}{.}\PYG{n+nx}{Node}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kt}{error}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{plan}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{s}\PYG{p}{.}\PYG{n+nx}{Plan}\PYG{p}{(}\PYG{n+nx}{service}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{err}\PYG{+w}{ }\PYG{o}{!=}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{nil}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{err}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{n+nx}{node}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{n+nx}{plan}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+\PYG{+w}{	}\PYG{n+nx}{log}\PYG{p}{.}\PYG{n+nx}{Printf}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}scheduler: selected node \PYGZpc{}s for service \PYGZpc{}s (\PYGZpc{}.1f CPU, \PYGZpc{}d MB RAM left after placement)\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{		}\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{ID}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{service}\PYG{p}{.}\PYG{n+nx}{Name}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{AvailableCPU}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{.}\PYG{n+nx}{AvailableRAM}\PYG{p}{(}\PYG{p}{)}\PYG{p}{)}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{n+nx}{node}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kc}{nil}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+c1}{// portConflict reports whether one of the requested ports is already used.}
+\PYG{c+c1}{// Each port can be bound only once per machine.}
+\PYG{k+kd}{func}\PYG{+w}{ }\PYG{n+nx}{portConflict}\PYG{p}{(}\PYG{n+nx}{used}\PYG{+w}{ }\PYG{k+kd}{map}\PYG{p}{[}\PYG{k+kt}{int}\PYG{p}{]}\PYG{k+kt}{bool}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{ports}\PYG{+w}{ }\PYG{p}{[}\PYG{p}{]}\PYG{k+kt}{int}\PYG{p}{)}\PYG{+w}{ }\PYG{k+kt}{bool}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{for}\PYG{+w}{ }\PYG{n+nx}{\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nx}{p}\PYG{+w}{ }\PYG{o}{:=}\PYG{+w}{ }\PYG{k}{range}\PYG{+w}{ }\PYG{n+nx}{ports}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k}{if}\PYG{+w}{ }\PYG{n+nx}{used}\PYG{p}{[}\PYG{n+nx}{p}\PYG{p}{]}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{true}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{k+kc}{false}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

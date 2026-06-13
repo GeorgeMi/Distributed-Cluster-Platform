@@ -28,7 +28,7 @@ func main() {
 	log.Printf("worker %s starting, address=%s, multicast=%s", *nodeID, *addr, *multicast)
 
 	// Docker manager
-	docker, err := agent.NewDockerManager()
+	docker, err := agent.NewDockerManager(*nodeID)
 	if err != nil {
 		log.Fatalf("docker: %v", err)
 	}

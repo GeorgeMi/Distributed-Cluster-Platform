@@ -5,7 +5,7 @@ This chapter presents the testing methodology and results. The platform was test
 
 The purpose of testing is to verify that each component works correctly on its own (unit tests) and that all components work together as a complete system (manual tests). Unit tests are fast, repeatable and can be run automatically. Manual tests are slower but they test real scenarios with actual Docker containers, network communication and user interaction.
 
-The test environment consists of a single macOS machine (Apple Silicon, 11 CPU cores, 18 GB RAM) running Docker Desktop. The master and workers run as separate processes on the same machine, communicating through localhost.
+The test environment consists of a single macOS machine (Apple Silicon, 11 CPU cores, 18 GB RAM) running Docker Desktop. The master and workers run as separate processes on the same machine, communicating through localhost. One limitation of this setup is that all workers share the same Docker daemon and the same host ports. The platform handles this by including the worker ID in container names and labels, but two containers that bind the same port can still collide at the Docker level when their workers run on one machine, because the scheduler sees the workers as separate nodes. On separate physical machines this situation cannot occur.
 
 \section{Unit Tests}
 
@@ -24,14 +24,16 @@ Four tests verify the LeastConnections and Weighted strategies:
 
 \subsection{Scheduler Tests}
 
-Three tests verify the scheduling logic:
+Four tests verify the scheduling logic:
 
 \begin{itemize}
     \item \textbf{TestSchedule\_FindsNode}. With one alive node that has enough resources, the scheduler returns it.
     \item \textbf{TestSchedule\_NotEnoughResources}. When the service requires 100 CPU cores but the node only has 6 available, the scheduler returns an error.
+    \item \textbf{TestPlan\_AllOrNothing}. The node has capacity for one replica of 4 CPU but not for two: planning one replica succeeds, planning two replicas fails and no node is assigned.
     \item \textbf{TestSchedule\_EmptyPool}. When the pool has no nodes, the scheduler returns an error.
 \end{itemize}
 
+\newpage
 \subsection{ACL Tests}
 
 Four tests verify the role-based access control:
@@ -48,7 +50,8 @@ Four tests verify the role-based access control:
 All unit tests pass:
 
 \begin{verbatim}
-$ go test ./internal/loadbalancer/ ./internal/scheduler/ ./internal/security/ -v
+$ go test ./internal/loadbalancer/ ./internal/scheduler/ \
+          ./internal/security/ -v
 
 --- PASS: TestLeastConnections_SelectsNodeWithFewestContainers
 --- PASS: TestLeastConnections_EmptyCandidates
@@ -58,6 +61,7 @@ ok   internal/loadbalancer
 
 --- PASS: TestSchedule_FindsNode
 --- PASS: TestSchedule_NotEnoughResources
+--- PASS: TestPlan_AllOrNothing
 --- PASS: TestSchedule_EmptyPool
 ok   internal/scheduler
 
@@ -99,12 +103,22 @@ The following scenarios were tested manually to verify the end-to-end behavior o
 
 \textbf{Steps:}
 \begin{enumerate}
-    \item Login as admin: \texttt{curl -X POST http://localhost:8090/login -d '\{"username":"admin","password":"admin"\}'}
-    \item Deploy nginx using the access token from step 1: \texttt{curl -X POST http://localhost:8090/services -H "Authorization: Bearer <TOKEN>" -d '\{"name":"nginx","image":"nginx:latest","cpu":0.5,"ram":256,"replicas":1,"pool":"high-cpu"\}'}
+    \item Login as admin:
+\begin{verbatim}
+curl -X POST http://localhost:8090/login \
+  -d '{"username":"admin","password":"admin"}'
+\end{verbatim}
+    \item Deploy nginx using the access token from step 1:
+\begin{verbatim}
+curl -X POST http://localhost:8090/services \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"name":"nginx","image":"nginx:latest","cpu":0.5,
+       "ram":256,"replicas":1,"pool":"high-cpu"}'
+\end{verbatim}
     \item Verify the container is running: \texttt{docker ps}
 \end{enumerate}
 
-\textbf{Expected result:} The login returns a JSON with \texttt{accessToken}, \texttt{refreshToken} and \texttt{expiresIn} (900 seconds). The deploy returns 201 Created with a \texttt{serviceID} and a \texttt{containers} array where each container has status RUNNING and a \texttt{nodeID}. The \texttt{docker ps} command shows a container named \texttt{dcp-<serviceID>} running on the machine.
+\textbf{Expected result:} The login returns a JSON with \texttt{accessToken}, \texttt{refreshToken} and \texttt{expiresIn} (900 seconds). The deploy returns 201 Created with a \texttt{serviceID} and a \texttt{containers} array where each container has status RUNNING and a \texttt{nodeID}. The \texttt{docker ps} command shows a container named \texttt{dcp-<workerID>-<serviceID>-<n>} running on the machine.
 
 \begin{figure}[H]
     \centering
@@ -141,7 +155,11 @@ The following scenarios were tested manually to verify the end-to-end behavior o
 
 \textbf{Steps:}
 \begin{enumerate}
-    \item Login as reader: \texttt{curl -X POST http://localhost:8090/login -d '\{"username":"reader","password":"reader"\}'}
+    \item Login as reader:
+\begin{verbatim}
+curl -X POST http://localhost:8090/login \
+  -d '{"username":"reader","password":"reader"}'
+\end{verbatim}
     \item Try to deploy a service using the reader token.
     \item Login as admin and deploy the same service.
 \end{enumerate}
@@ -162,8 +180,16 @@ The following scenarios were tested manually to verify the end-to-end behavior o
 \textbf{Steps:}
 \begin{enumerate}
     \item Perform several actions: login, deploy a service, delete a service.
-    \item Query the full audit log: \texttt{curl -H "Authorization: Bearer <TOKEN>" http://localhost:8090/audit}
-    \item Query with a filter: \texttt{curl -H "Authorization: Bearer <TOKEN>" http://localhost:8090/audit?action=LOGIN}
+    \item Query the full audit log:
+\begin{verbatim}
+curl -H "Authorization: Bearer <TOKEN>" \
+  http://localhost:8090/audit
+\end{verbatim}
+    \item Query with a filter:
+\begin{verbatim}
+curl -H "Authorization: Bearer <TOKEN>" \
+  "http://localhost:8090/audit?action=LOGIN"
+\end{verbatim}
 \end{enumerate}
 
 \textbf{Expected result:} The audit log returns a JSON array of events. Each event has a timestamp, user ID, action type (LOGIN, SERVICE\_CREATE, NODE\_DISCOVERED, AUTH\_DENIED, etc.) and the affected resource. The filtered query returns only events matching the specified action. The log is append-only, so all events from the current session are present in chronological order.
@@ -174,3 +200,42 @@ The following scenarios were tested manually to verify the end-to-end behavior o
     \caption{Audit log with recorded events}
     \label{fig:test_audit}
 \end{figure}
+
+\section{Timing and Performance Characteristics}
+
+Beyond confirming that each scenario behaves correctly, the timing of the most important operations was measured on the test machine by reading the timestamps in the master log. The goal is not a full performance benchmark but a check that the reaction times match the values configured in the code and that they are reasonable for a small cluster.
+
+The fault tolerance module checks the nodes on a fixed five-second tick, so the detection times are observed in five-second steps rather than at the exact theoretical second. For example, a node that stops sending heartbeats is marked SUSPECT at the first check at or after 15 seconds, which in practice falls between 15 and 20 seconds. Table \ref{tab:timing} summarizes the measured behavior.
+
+\begin{table}[H]
+    \centering
+    \caption{Measured timing of the main operations}
+    \label{tab:timing}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Operation} & \textbf{Configured} & \textbf{Observed} \\
+        \hline
+        Heartbeat interval & 5 s & 5 s \\
+        \hline
+        Node discovery (first heartbeat to ALIVE) & $\leq$ 5 s & within one interval \\
+        \hline
+        SUSPECT detection & 15 s & 15--20 s \\
+        \hline
+        DEAD detection & 30 s & 30--35 s \\
+        \hline
+        Container recovery (DEAD to replacement RUNNING) & --- & a few seconds after DEAD \\
+        \hline
+        Leader election after leader failure & --- & 1--4 s \\
+        \hline
+        Service deploy, image already present & --- & under 1 s \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The detection times follow the configured thresholds closely, with the small extra delay explained by the five-second check granularity. Container recovery starts immediately after a node is marked DEAD: the master reschedules the affected containers and the new ones reach the RUNNING state within a few seconds, the time being dominated by the worker creating and starting the container through Docker.
+
+Leader election was measured by stopping the leader and reading the log of the master that took over. The new leader was elected in one to four seconds. This range comes from the HashiCorp Raft default timeouts (a one-second heartbeat timeout followed by a randomized election timeout), so the cluster keeps accepting write requests again within a few seconds of losing its leader.
+
+Service deployment latency has two very different cases. When the Docker image is already present on the worker, the API responds in under a second, since the only work is creating and starting the container. The first deployment of a new image is instead dominated by the image pull from the registry, which depends on the image size and the network speed and is therefore not a property of the platform itself. For this reason only the image-present case is reported as a platform metric.
+
+These measurements were taken on a single machine where the network latency between processes is negligible. On a real network the absolute values would grow with the round-trip time between nodes, but the relative behavior, detection in fixed steps and recovery within seconds, would stay the same.

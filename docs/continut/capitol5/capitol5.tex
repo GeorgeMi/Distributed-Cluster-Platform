@@ -16,28 +16,30 @@ All objectives proposed in the introduction have been achieved:
     \item \textbf{Audit}. All important actions are recorded in an append-only log queryable through the API.
     \item \textbf{High availability}. Raft consensus enables state replication across multiple master nodes with automatic leader election.
     \item \textbf{Docker integration}. Containers are managed through the Docker SDK, supporting image pulling, resource limits, environment variables, ports and custom commands.
-    \item \textbf{REST API}. A complete HTTP API allows users to manage services, view nodes and query audit logs.
+    \item \textbf{REST API}. A complete HTTP API allows users to manage services, view nodes and query audit logs. The API is served by every master; write requests received by a follower are forwarded to the leader, so a leader change does not affect users.
 \end{itemize}
 
 \section{Comparison with Similar Solutions}
 
 Compared to Kubernetes, Docker Swarm and Nomad (analyzed in Chapter 2), the proposed platform is simpler to understand and deploy. It implements the same fundamental concepts (heartbeats, consensus, scheduling, RBAC) but in a single Go module with minimal dependencies. This makes it suitable for educational purposes and smaller deployments where Kubernetes would be too complex.
 
-The main trade-off is that the platform lacks features expected in production systems: a durable and replicated audit log, service networking, horizontal scaling of masters and support for multiple container runtimes.
+The difference is clearest in how much is needed to run each system. A Kubernetes cluster needs a separate etcd database, several control-plane components and a network plugin and it is usually managed by a dedicated team. The proposed platform runs as two small binaries, the master and the worker, with no external services to install. A worker joins the cluster simply by starting and sending heartbeats and a service is deployed with a single HTTP request. This low setup cost is exactly what makes the platform a good fit for learning and for small clusters, where the time spent setting up Kubernetes would be larger than the problem being solved.
+
+The main trade-off is that the platform lacks features expected in production systems: a durable and replicated audit log, service networking, horizontal scaling of masters and support for multiple container runtimes. These are not gaps in the design but features left out on purpose to keep the system small and clear. Each of them is a natural next step rather than a change to the existing architecture, as described in the following section.
 
 \section{Future Work}
 
 Several improvements could extend the platform:
 
 \begin{itemize}
-    \item \textbf{Durable audit and full recovery}. Service and container state is already persisted through the Raft log, so a master rebuilds it on restart. The audit log, however, is kept only in memory and is not replicated; persisting and replicating it would be a useful next step.
-    \item \textbf{Service networking}. Adding DNS-based service discovery and ingress routing would allow containers to communicate with each other by name.
-    \item \textbf{Auto-scaling}. Automatically adjusting the number of replicas based on CPU or memory usage.
-    \item \textbf{Web dashboard}. A graphical interface for monitoring the cluster, deploying services and viewing logs.
-    \item \textbf{Multi-runtime support}. Adding support for containerd or Podman in addition to Docker.
-    \item \textbf{Health checks}. Allowing services to define custom health check endpoints that the platform monitors.
+    \item \textbf{Durable audit}. Service and container state is already persisted through the Raft log, so a master rebuilds it on restart. The audit log, however, is kept only in memory and is not replicated; persisting and replicating it would be a useful next step.
+    \item \textbf{Private image registries}. An ADMIN-only endpoint for registering the credentials of a private container registry, replicated through Raft and used by workers for authenticated image pulls (supported directly by the Docker SDK). This would let users deploy their own private images and would give the ADMIN role a capability that clearly separates it from WRITER. In production, the credentials should live in a secret manager rather than travel in plain text over the trusted network.
+    \item \textbf{Dynamic master membership}. The set of master nodes is fixed at bootstrap through the \texttt{-raft-peers} flag, so adding a master requires restarting the cluster. A join endpoint on the leader, based on Raft's \texttt{AddVoter} operation, would add masters at runtime without downtime. The join must stay an explicit administrative action, because every new voter changes the quorum size of the cluster.
+    \item \textbf{Other directions}. DNS-based service networking, auto-scaling of replicas, service health checks, a web dashboard and support for other container runtimes such as containerd or Podman.
 \end{itemize}
 
-\section{Lessons Learned}
+\section{Final Remarks}
 
-Building this platform from scratch provided several important lessons about distributed systems. First, handling failures is harder than handling normal operations because most of the complexity comes from edge cases like split-brain, partial failures and race conditions. Second, keeping things simple is a design choice that requires effort. It is easy to add features, but hard to keep the system understandable. Third, UDP multicast is a good fit for heartbeats but requires careful handling since packets can be lost. Fourth, Raft provides strong guarantees but adds complexity to every write operation. Finally, testing distributed systems is difficult because failures are hard to reproduce, so the manual tests were more useful than unit tests for finding real bugs.
+The introduction set out to manage containerized services across a cluster and to solve, in one system that is easy to understand, the main problems of node discovery, scheduling, fault recovery and access control. The platform solves all of them. Workers join the cluster on their own through heartbeats. The scheduler places a service only when there is room for all its replicas, so a deployment is never left half started. Failed nodes are detected and their containers are restarted on other nodes without any human action. Every request first passes through authentication, authorization and the audit log. The data that must survive a failure is copied to all master nodes with Raft and users always use the same REST API, no matter which master is the leader at that moment.
+
+The work shows that the core mechanisms of a container orchestrator can be built from scratch and kept small enough to read and understand from start to finish. This was the main goal of the thesis. The aim was not to compete with Kubernetes on features, but to make the ideas behind it clear and easy to follow. The clear split between the master and the worker, the pluggable load balancer and the simple state machines for nodes and containers make the system easy to follow and easy to extend. This makes it a good base for the future work described above and a useful tool for learning how distributed systems work.

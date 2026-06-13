@@ -1,12 +1,15 @@
 package api
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"strings"
 
 	"github.com/GeorgeMi/Distributed-Cluster-Platform/internal/agent"
@@ -24,9 +27,10 @@ type Server struct {
 	audit     *audit.Logger
 	raftNode  *cluster.RaftNode
 	addr      string
+	peersAPI  map[string]string // raft ID -> API address of each master
 }
 
-func NewServer(addr string, state *cluster.State, sched *scheduler.Scheduler, jwt *security.JWTManager, auditLog *audit.Logger, raftNode *cluster.RaftNode) *Server {
+func NewServer(addr string, state *cluster.State, sched *scheduler.Scheduler, jwt *security.JWTManager, auditLog *audit.Logger, raftNode *cluster.RaftNode, peersAPI map[string]string) *Server {
 	return &Server{
 		addr:      addr,
 		state:     state,
@@ -34,6 +38,7 @@ func NewServer(addr string, state *cluster.State, sched *scheduler.Scheduler, jw
 		jwt:       jwt,
 		audit:     auditLog,
 		raftNode:  raftNode,
+		peersAPI:  peersAPI,
 	}
 }
 
@@ -48,8 +53,8 @@ func (s *Server) Start() {
 	mux.HandleFunc("GET /nodes", s.auth("nodes", "read", s.getNodes))
 	mux.HandleFunc("GET /pools", s.auth("pools", "read", s.getPools))
 	mux.HandleFunc("GET /services", s.auth("services", "read", s.getServices))
-	mux.HandleFunc("POST /services", s.auth("services", "create", s.leaderOnly(s.createService)))
-	mux.HandleFunc("DELETE /services/{id}", s.auth("services", "delete", s.leaderOnly(s.deleteService)))
+	mux.HandleFunc("POST /services", s.auth("services", "create", s.leaderForward(s.createService)))
+	mux.HandleFunc("DELETE /services/{id}", s.auth("services", "delete", s.leaderForward(s.deleteService)))
 	mux.HandleFunc("GET /audit", s.auth("audit", "read", s.getAudit))
 
 	log.Printf("api: listening on %s", s.addr)
@@ -61,7 +66,6 @@ func (s *Server) Start() {
 // auth is a middleware that checks JWT and ACL permissions.
 func (s *Server) auth(resource, action string, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Extract token from Authorization header
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "missing or invalid Authorization header"})
@@ -69,34 +73,70 @@ func (s *Server) auth(resource, action string, next http.HandlerFunc) http.Handl
 		}
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 
-		// Validate token
 		claims, err := s.jwt.ValidateAccessToken(tokenStr)
 		if err != nil {
 			writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid token: " + err.Error()})
 			return
 		}
 
-		// Check ACL
 		if !security.CheckPermission(claims.Role, resource, action) {
 			s.audit.Log(claims.UserID, audit.EventAuthDenied, resource, fmt.Sprintf("role %s cannot %s %s", claims.Role, action, resource))
 			writeJSON(w, http.StatusForbidden, map[string]string{"error": fmt.Sprintf("role %s cannot %s %s", claims.Role, action, resource)})
 			return
 		}
 
-		next(w, r)
+		next(w, r.WithContext(context.WithValue(r.Context(), userIDKey, claims.UserID)))
 	}
 }
 
-func (s *Server) leaderOnly(next http.HandlerFunc) http.HandlerFunc {
+type ctxKey string
+
+const userIDKey ctxKey = "userID"
+
+func requestUserID(r *http.Request) string {
+	if id, ok := r.Context().Value(userIDKey).(string); ok {
+		return id
+	}
+	return ""
+}
+
+// forwardedHeader marks a request already forwarded once, to avoid loops
+// when leadership changes while the request is in flight.
+const forwardedHeader = "X-DCP-Forwarded"
+
+// leaderForward runs the handler on the leader. On a follower, the request
+// is transparently proxied to the leader's API, so users can send write
+// requests to any master.
+func (s *Server) leaderForward(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if s.raftNode != nil && !s.raftNode.IsLeader() {
+		if s.raftNode == nil || s.raftNode.IsLeader() {
+			next(w, r)
+			return
+		}
+
+		leaderRaft, leaderID := s.raftNode.Leader()
+		if leaderID == "" {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "no leader elected yet; retry"})
+			return
+		}
+		if r.Header.Get(forwardedHeader) != "" {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "leadership changed while forwarding; retry"})
+			return
+		}
+		apiAddr, ok := s.peersAPI[leaderID]
+		if !ok {
 			writeJSON(w, http.StatusServiceUnavailable, map[string]string{
-				"error":      "not the leader; retry against the current leader",
-				"leaderRaft": s.raftNode.LeaderAddress(),
+				"error":      "not the leader and no API address known for it; start masters with -peers-api",
+				"leaderID":   leaderID,
+				"leaderRaft": leaderRaft,
 			})
 			return
 		}
-		next(w, r)
+
+		log.Printf("api: forwarding %s %s to leader %s (%s)", r.Method, r.URL.Path, leaderID, apiAddr)
+		r.Header.Set(forwardedHeader, "1")
+		proxy := httputil.NewSingleHostReverseProxy(&url.URL{Scheme: "http", Host: apiAddr})
+		proxy.ServeHTTP(w, r)
 	}
 }
 
@@ -121,7 +161,6 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check password hash
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(req.Password)))
 	if hash != user.TokenHash {
 		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid credentials"})
@@ -156,7 +195,6 @@ func (s *Server) refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Find user to get current role
 	var user *domain.User
 	users := s.state.GetAllUsers()
 	for _, u := range users {
@@ -202,7 +240,18 @@ func (s *Server) getPools(w http.ResponseWriter, r *http.Request) {
 // GET /services
 func (s *Server) getServices(w http.ResponseWriter, r *http.Request) {
 	services := s.state.GetAllServices()
-	writeJSON(w, http.StatusOK, services)
+	out := make([]*domain.Service, 0, len(services))
+	for _, svc := range services {
+		view := *svc
+		view.Replicas = 0
+		for _, c := range s.state.GetContainersByService(svc.ID) {
+			if c.Status == domain.ContainerRunning {
+				view.Replicas++
+			}
+		}
+		out = append(out, &view)
+	}
+	writeJSON(w, http.StatusOK, out)
 }
 
 type CreateServiceRequest struct {
@@ -252,11 +301,12 @@ func (s *Server) createService(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var containers []map[string]string
-	runningCount := 0
-	for i := 0; i < req.Replicas; i++ {
-		node, err := s.scheduler.Schedule(svc)
-		if err != nil {
-			log.Printf("api: cannot schedule replica %d of %s: %v", i+1, svc.Name, err)
+
+	// All-or-nothing: if not every replica can be placed, none is started.
+	plan, planErr := s.scheduler.Plan(svc, req.Replicas)
+	if planErr != nil {
+		log.Printf("api: cannot place all %d replicas of %s: %v", req.Replicas, svc.Name, planErr)
+		for i := 0; i < req.Replicas; i++ {
 			c := &domain.Container{
 				ID:        generateID("ctr"),
 				ServiceID: svc.ID,
@@ -264,10 +314,20 @@ func (s *Server) createService(w http.ResponseWriter, r *http.Request) {
 			}
 			s.applyAddContainer(c)
 			containers = append(containers, map[string]string{"id": c.ID, "status": domain.ContainerPending})
-			continue
 		}
+		s.audit.Log(requestUserID(r), audit.EventServiceCreate, svc.ID, fmt.Sprintf("service %s created with %d replicas (pending)", svc.Name, req.Replicas))
+		writeJSON(w, http.StatusCreated, map[string]any{
+			"serviceID":  svc.ID,
+			"name":       svc.Name,
+			"containers": containers,
+			"message":    "not enough capacity for all replicas, nothing was started; " + planErr.Error(),
+		})
+		return
+	}
 
-		// Container scheduled - node found, waiting for Docker to start
+	for i := 0; i < req.Replicas; i++ {
+		node := plan[i]
+
 		c := &domain.Container{
 			ID:        generateID("ctr"),
 			ServiceID: svc.ID,
@@ -302,15 +362,12 @@ func (s *Server) createService(w http.ResponseWriter, r *http.Request) {
 
 		c.DockerID = resp.ContainerID
 		c.Status = domain.ContainerRunning
-		s.applySetContainerStatus(c.ID, domain.ContainerRunning)
-		runningCount++
+		s.applyAddContainer(c)
 		containers = append(containers, map[string]string{"id": c.ID, "nodeID": node.ID, "status": domain.ContainerRunning})
 		log.Printf("api: service %s replica %d started on node %s", svc.Name, i+1, node.ID)
 	}
 
-	s.applySetServiceReplicas(svc.ID, runningCount)
-
-	s.audit.Log("", audit.EventServiceCreate, svc.ID, fmt.Sprintf("service %s created with %d replicas", svc.Name, req.Replicas))
+	s.audit.Log(requestUserID(r), audit.EventServiceCreate, svc.ID, fmt.Sprintf("service %s created with %d replicas", svc.Name, req.Replicas))
 
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"serviceID":  svc.ID,
@@ -344,7 +401,7 @@ func (s *Server) deleteService(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.applyRemoveService(serviceID)
-	s.audit.Log("", audit.EventServiceDelete, serviceID, fmt.Sprintf("service %s deleted", svc.Name))
+	s.audit.Log(requestUserID(r), audit.EventServiceDelete, serviceID, fmt.Sprintf("service %s deleted", svc.Name))
 	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
@@ -365,10 +422,12 @@ func (s *Server) getAudit(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, entries)
 }
 
-// applyAddContainer adds a container through Raft or directly.
+// applyAddContainer adds or updates a container through Raft or directly.
 func (s *Server) applyAddContainer(c *domain.Container) {
 	if s.raftNode != nil {
-		s.raftNode.Apply(cluster.LogAddContainer, c)
+		if err := s.raftNode.Apply(cluster.LogAddContainer, c); err != nil {
+			log.Printf("api: apply AddContainer: %v", err)
+		}
 	} else {
 		s.state.AddContainer(c)
 	}
@@ -376,7 +435,9 @@ func (s *Server) applyAddContainer(c *domain.Container) {
 
 func (s *Server) applySetContainerStatus(id, status string) {
 	if s.raftNode != nil {
-		s.raftNode.Apply(cluster.LogSetContainerStatus, map[string]string{"id": id, "status": status})
+		if err := s.raftNode.Apply(cluster.LogSetContainerStatus, map[string]string{"id": id, "status": status}); err != nil {
+			log.Printf("api: apply SetContainerStatus: %v", err)
+		}
 	} else {
 		s.state.SetContainerStatus(id, status)
 	}
@@ -385,17 +446,11 @@ func (s *Server) applySetContainerStatus(id, status string) {
 // applyRemoveService removes a service through Raft or directly.
 func (s *Server) applyRemoveService(id string) {
 	if s.raftNode != nil {
-		s.raftNode.Apply(cluster.LogRemoveService, map[string]string{"id": id})
+		if err := s.raftNode.Apply(cluster.LogRemoveService, map[string]string{"id": id}); err != nil {
+			log.Printf("api: apply RemoveService: %v", err)
+		}
 	} else {
 		s.state.RemoveService(id)
-	}
-}
-
-func (s *Server) applySetServiceReplicas(id string, replicas int) {
-	if s.raftNode != nil {
-		s.raftNode.Apply(cluster.LogSetServiceReplicas, map[string]any{"id": id, "replicas": replicas})
-	} else {
-		s.state.SetServiceReplicas(id, replicas)
 	}
 }
 

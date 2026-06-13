@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.7)  11 JUN 2026 14:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.7)  14 JUN 2026 11:16
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1001,8 +1001,8 @@ File: tikzlibrarypositioning.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 )
 (/Users/george/projects/distributed_cluster_platform/docs/macros/constante.tex)
 (/Users/george/projects/distributed_cluster_platform/docs/macros/student.tex)
-LaTeX Font Info:    Trying to load font information for T1+ptm on input line 13
-9.
+LaTeX Font Info:    Trying to load font information for T1+ptm on input line 14
+2.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/t1ptm.fd
 File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
@@ -1010,24 +1010,24 @@ File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
 (/Users/george/projects/distributed_cluster_platform/docs/main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 139.
-LaTeX Font Info:    ... okay on input line 139.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 142.
+LaTeX Font Info:    ... okay on input line 142.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1063,7 +1063,7 @@ LaTeX Font Info:    ... okay on input line 139.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring ON on input line 139.
+Package hyperref Info: Link coloring ON on input line 142.
 (/Users/george/projects/distributed_cluster_platform/docs/main.out)
 (/Users/george/projects/distributed_cluster_platform/docs/main.out)
 \@outlinefile=\write5
@@ -1118,7 +1118,7 @@ Package newfloat Info: Trying Plan B...
 Package newfloat Info: `float' package detected.
 
 (/Users/george/projects/distributed_cluster_platform/docs/coperti/extern.tex
-<coperti/logo-tuiasi_1.png, id=328, 220.825pt x 132.495pt>
+<coperti/logo-tuiasi_1.png, id=312, 220.825pt x 132.495pt>
 File: coperti/logo-tuiasi_1.png Graphic file (type png)
 <use coperti/logo-tuiasi_1.png>
 Package pdftex.def Info: coperti/logo-tuiasi_1.png  used on input line 26.
@@ -1159,7 +1159,7 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 26.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 26.
-<coperti/cropped-AC-Logo-35.png, id=329, 143.03438pt x 143.03438pt>
+<coperti/cropped-AC-Logo-35.png, id=313, 143.03438pt x 143.03438pt>
 File: coperti/cropped-AC-Logo-35.png Graphic file (type png)
 <use coperti/cropped-AC-Logo-35.png>
 Package pdftex.def Info: coperti/cropped-AC-Logo-35.png  used on input line 26.
@@ -1230,43 +1230,43 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.151         \cleardoublepage
+l.154         \cleardoublepage
                                [2
 
 ]
-<pdf/declaratie_autenticitate_disertatie.pdf, id=352, 597.58253pt x 845.1575pt>
+<pdf/declaratie_autenticitate_disertatie.pdf, id=336, 597.58253pt x 845.1575pt>
 
 File: pdf/declaratie_autenticitate_disertatie.pdf Graphic file (type pdf)
 <use pdf/declaratie_autenticitate_disertatie.pdf>
 Package pdftex.def Info: pdf/declaratie_autenticitate_disertatie.pdf  used on i
-nput line 154.
+nput line 157.
 (pdftex.def)             Requested size: 597.58107pt x 845.15544pt.
-<pdf/declaratie_autenticitate_disertatie.pdf, id=354, page=1, 597.58253pt x 845
+<pdf/declaratie_autenticitate_disertatie.pdf, id=338, page=1, 597.58253pt x 845
 .1575pt>
 File: pdf/declaratie_autenticitate_disertatie.pdf Graphic file (type pdf)
 <use pdf/declaratie_autenticitate_disertatie.pdf, page 1>
 Package pdftex.def Info: pdf/declaratie_autenticitate_disertatie.pdf , page1 us
-ed on input line 154.
+ed on input line 157.
 (pdftex.def)             Requested size: 597.58107pt x 845.15544pt.
 File: pdf/declaratie_autenticitate_disertatie.pdf Graphic file (type pdf)
 <use pdf/declaratie_autenticitate_disertatie.pdf, page 1>
 Package pdftex.def Info: pdf/declaratie_autenticitate_disertatie.pdf , page1 us
-ed on input line 154.
+ed on input line 157.
 (pdftex.def)             Requested size: 597.58107pt x 845.15544pt.
 File: pdf/declaratie_autenticitate_disertatie.pdf Graphic file (type pdf)
 <use pdf/declaratie_autenticitate_disertatie.pdf, page 1>
 Package pdftex.def Info: pdf/declaratie_autenticitate_disertatie.pdf , page1 us
-ed on input line 154.
+ed on input line 157.
 (pdftex.def)             Requested size: 597.58107pt x 845.15544pt.
 File: pdf/declaratie_autenticitate_disertatie.pdf Graphic file (type pdf)
 <use pdf/declaratie_autenticitate_disertatie.pdf, page 1>
 Package pdftex.def Info: pdf/declaratie_autenticitate_disertatie.pdf , page1 us
-ed on input line 154.
+ed on input line 157.
 (pdftex.def)             Requested size: 597.58107pt x 845.15544pt.
 File: pdf/declaratie_autenticitate_disertatie.pdf Graphic file (type pdf)
 <use pdf/declaratie_autenticitate_disertatie.pdf, page 1>
 Package pdftex.def Info: pdf/declaratie_autenticitate_disertatie.pdf , page1 us
-ed on input line 154.
+ed on input line 157.
 (pdftex.def)             Requested size: 597.58107pt x 845.15544pt.
  [3
 
@@ -1298,12 +1298,6 @@ itol1.tex
 Capitolul 1.
 Package newfloat Info: Setting Plan B file extension to `lof'... on input line 
 1.
-
-Overfull \hbox (0.27342pt too wide) in paragraph at lines 4--5
-[]\T1/ptm/m/n/12 Running ser-vi-ces re-li-a-bly across mul-ti-ple ma-chi-nes is
- a co-m-mon cha-l-lenge in mo-dern software
- []
-
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
 5.
 (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/ts1ptm.fd
@@ -1322,7 +1316,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.178     \cleardoublepage
+l.181     \cleardoublepage
                            [2]
 (/Users/george/projects/distributed_cluster_platform/docs/continut/capitol2/cap
 itol2.tex
@@ -1348,9 +1342,9 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.4}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.92 \end{itemize}
-                   [4{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-sup
-er/cm-super-t1.enc}]
+l.91     \item T
+                LS encryption for node communication [4{/usr/local/texlive/2026
+/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
 pdfTeX warning (ext4): destination with the same identifier (name{page.5}) has 
 been already used, duplicate ignored
 <to be read again> 
@@ -1362,12 +1356,12 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.6}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.181     \cleardoublepage
+l.184     \cleardoublepage
                            [6]
 (/Users/george/projects/distributed_cluster_platform/docs/continut/capitol3/cap
 itol3.tex
 Capitolul 3.
-<continut/capitol3/figuri/component_overview.png, id=542, 877.2775pt x 568.1225
+<continut/capitol3/figuri/component_overview.png, id=541, 877.2775pt x 568.1225
 pt>
 File: continut/capitol3/figuri/component_overview.png Graphic file (type png)
 <use continut/capitol3/figuri/component_overview.png>
@@ -1404,20 +1398,20 @@ l.69     \item \textbf
                       {Monitor}. Reads system metrics (CPU usage, RAM usage)...
 [8 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3/
 figuri/component_overview.png>]
-<continut/capitol3/figuri/domain_model.png, id=551, 963.6pt x 544.0325pt>
+<continut/capitol3/figuri/domain_model.png, id=554, 823.075pt x 518.93875pt>
 File: continut/capitol3/figuri/domain_model.png Graphic file (type png)
 <use continut/capitol3/figuri/domain_model.png>
 Package pdftex.def Info: continut/capitol3/figuri/domain_model.png  used on inp
 ut line 97.
-(pdftex.def)             Requested size: 483.69687pt x 273.08644pt.
+(pdftex.def)             Requested size: 483.69687pt x 304.96762pt.
  [9 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
 /figuri/domain_model.png>]
-<continut/capitol3/figuri/heartbeat.png, id=560, 762.85pt x 408.52625pt>
+<continut/capitol3/figuri/heartbeat.png, id=563, 717.68124pt x 338.26375pt>
 File: continut/capitol3/figuri/heartbeat.png Graphic file (type png)
 <use continut/capitol3/figuri/heartbeat.png>
 Package pdftex.def Info: continut/capitol3/figuri/heartbeat.png  used on input 
 line 133.
-(pdftex.def)             Requested size: 483.69687pt x 259.03104pt.
+(pdftex.def)             Requested size: 483.69687pt x 227.98267pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -1427,85 +1421,72 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [10]
 [11 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
 /figuri/heartbeat.png>]
-<continut/capitol3/figuri/fault_tolerance.png, id=571, 685.56125pt x 628.3475pt
+<continut/capitol3/figuri/fault_tolerance.png, id=574, 685.56125pt x 628.3475pt
 >
 File: continut/capitol3/figuri/fault_tolerance.png Graphic file (type png)
 <use continut/capitol3/figuri/fault_tolerance.png>
 Package pdftex.def Info: continut/capitol3/figuri/fault_tolerance.png  used on 
 input line 168.
 (pdftex.def)             Requested size: 483.69687pt x 443.3398pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
  [12 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
 3/figuri/fault_tolerance.png>]
-Overfull \hbox (9.0389pt too wide) in paragraph at lines 179--180
-\T1/ptm/m/n/12 fi-res and the mo-dule lo-ops thro-ugh all no-des, com-pa-ring \
-T1/cmtt/m/n/12 time.Now() \T1/ptm/m/n/12 with each node's \T1/cmtt/m/n/12 LastH
-eartbeat
- []
-
-
-Overfull \hbox (21.81523pt too wide) in paragraph at lines 189--190
-\T1/ptm/m/n/12 twork fa-i-lure), it sends a hear-tbeat. The mas-ter de-tects th
-is as a late hear-tbeat and sends a \T1/cmtt/m/n/12 KillContainers
- []
-
-<continut/capitol3/figuri/worker_state_machine.png, id=578, 720.6925pt x 441.65
-pt>
-File: continut/capitol3/figuri/worker_state_machine.png Graphic file (type png)
-
-<use continut/capitol3/figuri/worker_state_machine.png>
-Package pdftex.def Info: continut/capitol3/figuri/worker_state_machine.png  use
-d on input line 199.
-(pdftex.def)             Requested size: 483.69687pt x 296.41612pt.
-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [13]
-[14 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
-/figuri/worker_state_machine.png>]
-Overfull \hbox (9.42647pt too wide) in paragraph at lines 244--245
-\T1/ptm/m/n/12 ac-cepts \T1/cmtt/m/n/12 -multicast \T1/ptm/m/n/12 to con-fi-gur
-e the UDP mul-ti-cast ad-dress for hear-tbe-ats (de-fa-ult: \T1/cmtt/m/n/12 239
-.0.0.1:9090\T1/ptm/m/n/12 ).
- []
+<continut/capitol3/figuri/worker_state_machine.png, id=585, 651.43375pt x 413.5
+45pt>
+File: continut/capitol3/figuri/worker_state_machine.png Graphic file (type png)
 
-[15]
-<continut/capitol3/figuri/deployment_flow.png, id=594, 778.91pt x 603.25375pt>
+<use continut/capitol3/figuri/worker_state_machine.png>
+Package pdftex.def Info: continut/capitol3/figuri/worker_state_machine.png  use
+d on input line 201.
+(pdftex.def)             Requested size: 483.69687pt x 307.0723pt.
+
+[14 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
+/figuri/worker_state_machine.png>] [15]
+<continut/capitol3/figuri/deployment_flow.png, id=597, 721.69624pt x 556.0775pt
+>
 File: continut/capitol3/figuri/deployment_flow.png Graphic file (type png)
 <use continut/capitol3/figuri/deployment_flow.png>
 Package pdftex.def Info: continut/capitol3/figuri/deployment_flow.png  used on 
-input line 278.
-(pdftex.def)             Requested size: 483.69687pt x 374.61177pt.
+input line 282.
+(pdftex.def)             Requested size: 483.69687pt x 372.69727pt.
  [16 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
 3/figuri/deployment_flow.png>] [17]
-<continut/capitol3/figuri/container_state_machine.png, id=613, 827.09pt x 534.9
-9875pt>
+<continut/capitol3/figuri/container_state_machine.png, id=615, 731.73375pt x 36
+7.3725pt>
 File: continut/capitol3/figuri/container_state_machine.png Graphic file (type p
 ng)
 <use continut/capitol3/figuri/container_state_machine.png>
 Package pdftex.def Info: continut/capitol3/figuri/container_state_machine.png  
-used on input line 344.
-(pdftex.def)             Requested size: 483.69687pt x 312.87912pt.
- [18 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
-3/figuri/container_state_machine.png>]
-<continut/capitol3/figuri/security_audit.png, id=620, 777.90625pt x 551.05875pt
->
+used on input line 347.
+(pdftex.def)             Requested size: 483.69687pt x 242.84776pt.
+
+[18 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
+/figuri/container_state_machine.png>]
+<continut/capitol3/figuri/security_audit.png, id=622, 762.85pt x 533.995pt>
 File: continut/capitol3/figuri/security_audit.png Graphic file (type png)
 <use continut/capitol3/figuri/security_audit.png>
 Package pdftex.def Info: continut/capitol3/figuri/security_audit.png  used on i
-nput line 364.
-(pdftex.def)             Requested size: 483.69687pt x 342.65349pt.
-
-[19 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
-/figuri/security_audit.png>]
-<continut/capitol3/figuri/leader_election.png, id=627, 619.31375pt x 590.205pt>
+nput line 367.
+(pdftex.def)             Requested size: 483.69687pt x 338.58603pt.
+ [19 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
+3/figuri/security_audit.png>]
+<continut/capitol3/figuri/leader_election.png, id=629, 619.31375pt x 590.205pt>
 
 File: continut/capitol3/figuri/leader_election.png Graphic file (type png)
 <use continut/capitol3/figuri/leader_election.png>
 Package pdftex.def Info: continut/capitol3/figuri/leader_election.png  used on 
-input line 404.
+input line 409.
 (pdftex.def)             Requested size: 483.69687pt x 460.97945pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1516,132 +1497,88 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [20]
 [21 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
 /figuri/leader_election.png>]
-<continut/capitol3/figuri/topology.png, id=639, 925.4575pt x 569.12625pt>
-File: continut/capitol3/figuri/topology.png Graphic file (type png)
-<use continut/capitol3/figuri/topology.png>
-Package pdftex.def Info: continut/capitol3/figuri/topology.png  used on input l
-ine 443.
-(pdftex.def)             Requested size: 483.69687pt x 297.45839pt.
-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [22]
-[23 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
-/figuri/topology.png>] [24]) [25{/usr/local/texlive/2026/texmf-dist/fonts/enc/d
-vips/cm-super/cm-super-ts1.enc}] [26
+<continut/capitol3/figuri/topology.png, id=645, 972.63374pt x 590.205pt>
+File: continut/capitol3/figuri/topology.png Graphic file (type png)
+<use continut/capitol3/figuri/topology.png>
+Package pdftex.def Info: continut/capitol3/figuri/topology.png  used on input l
+ine 448.
+(pdftex.def)             Requested size: 483.69687pt x 293.50774pt.
 
-]
+[23 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol3
+/figuri/topology.png>] [24] [25{/usr/local/texlive/2026/texmf-dist/fonts/enc/dv
+ips/cm-super/cm-super-ts1.enc}]) [26]
 (/Users/george/projects/distributed_cluster_platform/docs/continut/capitol4/cap
 itol4.tex
 Capitolul 4.
 [27
 
-]
-Overfull \hbox (10.18253pt too wide) in paragraph at lines 69--69
-[]\T1/cmtt/m/n/12 $ go test ./internal/loadbalancer/ ./internal/scheduler/ ./in
-ternal/security/ -v[] 
- []
 
-<continut/capitol4/figuri/test_discovery.png, id=668, 1080.035pt x 400.49625pt>
+] [28]
+<continut/capitol4/figuri/test_discovery.png, id=678, 1080.035pt x 400.49625pt>
 
 File: continut/capitol4/figuri/test_discovery.png Graphic file (type png)
 <use continut/capitol4/figuri/test_discovery.png>
 Package pdftex.def Info: continut/capitol4/figuri/test_discovery.png  used on i
-nput line 91.
+nput line 95.
 (pdftex.def)             Requested size: 483.69687pt x 179.35999pt.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [28]
-Overfull \hbox (150.34395pt too wide) in paragraph at lines 102--103
-[]\T1/ptm/m/n/12 Login as ad-min: \T1/cmtt/m/n/12 curl -X POST http://localhost
-:8090/login -d '{"username":"admin","password":"admin"}' 
- []
-
-
-Overfull \hbox (45.13606pt too wide) in paragraph at lines 103--104
-[]\T1/ptm/m/n/12 Deploy nginx using the ac-cess to-ken from step 1: \T1/cmtt/m/
-n/12 curl -X POST http://localhost:8090/services
- []
-
-
-Overfull \hbox (354.40533pt too wide) in paragraph at lines 103--104
-\T1/cmtt/m/n/12 -H "Authorization: Bearer <TOKEN>" -d '{"name":"nginx","image":
-"nginx:latest","cpu":0.5,"ram":256,"replicas":1,"pool":"high-cpu"}' 
- []
-
-
-Overfull \hbox (9.04309pt too wide) in paragraph at lines 107--108
-[]\T1/ptm/b/n/12 Expected re-sult: \T1/ptm/m/n/12 The lo-gin re-turns a JSON wi
-th \T1/cmtt/m/n/12 accessToken\T1/ptm/m/n/12 , \T1/cmtt/m/n/12 refreshToken \T1
-/ptm/m/n/12 and \T1/cmtt/m/n/12 expiresIn
- []
-
-<continut/capitol4/figuri/test_deploy.png, id=677, 1378.14874pt x 242.9075pt>
+<continut/capitol4/figuri/test_deploy.png, id=679, 1378.14874pt x 242.9075pt>
 File: continut/capitol4/figuri/test_deploy.png Graphic file (type png)
 <use continut/capitol4/figuri/test_deploy.png>
 Package pdftex.def Info: continut/capitol4/figuri/test_deploy.png  used on inpu
-t line 111.
+t line 125.
 (pdftex.def)             Requested size: 483.69687pt x 85.2524pt.
-[29 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol4
-/figuri/test_discovery.png> </Users/george/projects/distributed_cluster_platfor
-m/docs/continut/capitol4/figuri/test_deploy.png>]
-<continut/capitol4/figuri/test_fault.png, id=694, 1182.4175pt x 420.57124pt>
+ [29 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
+4/figuri/test_discovery.png> </Users/george/projects/distributed_cluster_platfo
+rm/docs/continut/capitol4/figuri/test_deploy.png>]
+<continut/capitol4/figuri/test_fault.png, id=691, 1182.4175pt x 420.57124pt>
 File: continut/capitol4/figuri/test_fault.png Graphic file (type png)
 <use continut/capitol4/figuri/test_fault.png>
 Package pdftex.def Info: continut/capitol4/figuri/test_fault.png  used on input
- line 133.
+ line 147.
 (pdftex.def)             Requested size: 483.69687pt x 172.04387pt.
-
-Overfull \hbox (162.66695pt too wide) in paragraph at lines 144--145
-[]\T1/ptm/m/n/12 Login as rea-der: \T1/cmtt/m/n/12 curl -X POST http://localhos
-t:8090/login -d '{"username":"reader","password":"reader"}' 
- []
-
-<continut/capitol4/figuri/test_security.png, id=695, 1113.15875pt x 191.71625pt
+<continut/capitol4/figuri/test_security.png, id=692, 1113.15875pt x 191.71625pt
 >
 File: continut/capitol4/figuri/test_security.png Graphic file (type png)
 <use continut/capitol4/figuri/test_security.png>
 Package pdftex.def Info: continut/capitol4/figuri/test_security.png  used on in
-put line 153.
+put line 171.
 (pdftex.def)             Requested size: 483.69687pt x 83.3052pt.
-
-Overfull \hbox (81.9462pt too wide) in paragraph at lines 165--166
-[]\T1/ptm/m/n/12 Query the full au-dit log: \T1/cmtt/m/n/12 curl -H "Authorizat
-ion: Bearer <TOKEN>" http://localhost:8090/audit 
- []
-
-
-Overfull \hbox (138.5857pt too wide) in paragraph at lines 166--167
-[]\T1/ptm/m/n/12 Query with a fil-ter: \T1/cmtt/m/n/12 curl -H "Authorization: 
-Bearer <TOKEN>" http://localhost:8090/audit?action=LOGIN 
- []
-
-<continut/capitol4/figuri/test_audit.png, id=696, 1219.55624pt x 694.595pt>
+ [30 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol
+4/figuri/test_fault.png> </Users/george/projects/distributed_cluster_platform/d
+ocs/continut/capitol4/figuri/test_security.png>]
+<continut/capitol4/figuri/test_audit.png, id=709, 1219.55624pt x 694.595pt>
 File: continut/capitol4/figuri/test_audit.png Graphic file (type png)
 <use continut/capitol4/figuri/test_audit.png>
 Package pdftex.def Info: continut/capitol4/figuri/test_audit.png  used on input
- line 173.
+ line 199.
 (pdftex.def)             Requested size: 483.69687pt x 275.49077pt.
-) [30 </Users/george/projects/distributed_cluster_platform/docs/continut/capito
-l4/figuri/test_fault.png> </Users/george/projects/distributed_cluster_platform/
-docs/continut/capitol4/figuri/test_security.png>] [31 </Users/george/projects/d
-istributed_cluster_platform/docs/continut/capitol4/figuri/test_audit.png>]
-[32
 
-]
+Overfull \hbox (6.48761pt too wide) in paragraph at lines 214--233
+ [][] 
+ []
+
+[31 </Users/george/projects/distributed_cluster_platform/docs/continut/capitol4
+/figuri/test_audit.png>]) [32]
 (/Users/george/projects/distributed_cluster_platform/docs/continut/capitol5/cap
 itol5.tex
 Capitolul 5.
-[33
 
-]) [34] (/Users/george/projects/distributed_cluster_platform/docs/main.bbl)
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [33
+
+
+])
+[34] (/Users/george/projects/distributed_cluster_platform/docs/main.bbl)
 [35
 
 
@@ -1653,28 +1590,30 @@ ex) (/Users/george/projects/distributed_cluster_platform/docs/anexe/anexe.tex
 \pydata@fh@0=\write7
 \openout7 = `_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted'.
 
-runsystem(latexminted config  --timestamp 20260611145032 FAD58DE7366495DB4650CF
+runsystem(latexminted config  --timestamp 20260614111600 FAD58DE7366495DB4650CF
 EFAC2FCD61)...executed safely (allowed).
 
 
 (/Users/george/projects/distributed_cluster_platform/docs/_FAD58DE7366495DB4650
 CFEFAC2FCD61.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20260611145032 FAD58DE7366495DB4
+runsystem(latexminted cleanconfig  --timestamp 20260614111600 FAD58DE7366495DB4
 650CFEFAC2FCD61)...executed safely (allowed).
 
 
 (/Users/george/projects/distributed_cluster_platform/docs/_minted/default.style
 .minted)
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/7C8B531D3A9FB
-0FAC9F324EAA4090FD8.highlight.minted
+(/Users/george/projects/distributed_cluster_platform/docs/_minted/DBA21215DC314
+37F2B849C208043FDB3.highlight.minted
 LaTeX Font Info:    Trying to load font information for T1+pcr on input line 1.
 
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
-LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <10.95> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 6.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 22.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 22.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -1684,11 +1623,6 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [37
 
 ]
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 92.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 92.
-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -1698,486 +1632,50 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Package hyperref Info: bookmark level for unknown listing defaults to 0 on inpu
 t line 10.
 
-[39]
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/A706A679AA1A5
-7B34B3F67A440D718B9.highlight.minted
+(/Users/george/projects/distributed_cluster_platform/docs/_minted/1FC3B035ADCAE
+FF0A27DAADA90A3BBA2.highlight.minted [39]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [40]
-Underfull \vbox (badness 10000) has occurred while \output is active []
+LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <10.95> not available
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 95.
+LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <10> not available
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 95.
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [41]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [42]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [43]
-Underfull \vbox (badness 10000) has occurred while \output is active []
+ [41])
+(/Users/george/projects/distributed_cluster_platform/docs/_minted/507145252B5AF
+991F7B3BD45DA7E7618.highlight.minted)
+(/Users/george/projects/distributed_cluster_platform/docs/_minted/90CC237589250
+585C362C486931BD4F1.highlight.minted [42])
+(/Users/george/projects/distributed_cluster_platform/docs/_minted/887F0499210C4
+0E11885873F26A60809.highlight.minted [43])
+(/Users/george/projects/distributed_cluster_platform/docs/_minted/E662262ADF7C2
+76E92E381D6845847CA.highlight.minted
+LaTeX Font Info:    Trying to load font information for TS1+pcr on input line 2
+7.
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+(/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/ts1pcr.fd
+File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
+)
+LaTeX Font Info:    Font shape `TS1/pcr/m/it' in size <10.95> not available
+(Font)              Font shape `TS1/pcr/m/sl' tried instead on input line 27.
  [44]
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 306.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 306.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 306.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 306.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 307.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 307.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 307.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 307.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 308.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 308.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 308.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 308.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 309.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 309.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 309.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 309.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 310.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 310.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 310.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 310.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 311.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 311.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 311.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 311.
-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [45])
-[46]
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/B16025FCDA209
-EFE19B7487C387C376C.highlight.minted
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [47])
-[48]
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/8F0F666EEF1DB
-5564C274646E49D6A9B.highlight.minted
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [49]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [50])
-[51]
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/507145252B5AF
-991F7B3BD45DA7E7618.highlight.minted)
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/90CC237589250
-585C362C486931BD4F1.highlight.minted)
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/CBEF2B282843C
-681EF70B7A251D6F357.highlight.minted [52]) [53]
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/20FF8E33E54ED
-DA7D061F636AD558212.highlight.minted
-Overfull \hbox (14.48254pt too wide) in paragraph at lines 10--10
-|| | |[][][][]\T1/pcr/m/n/10.95 "github.com/GeorgeMi/Distributed[]Cluster[]Plat
-form/internal/loadbalancer"[]|  
- []
-
-LaTeX Font Info:    Trying to load font information for TS1+pcr on input line 2
-6.
-(/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/ts1pcr.fd
-File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
-)
-LaTeX Font Info:    Font shape `TS1/pcr/m/it' in size <10.95> not available
-(Font)              Font shape `TS1/pcr/m/sl' tried instead on input line 26.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [54])
-[55]
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/C4C593B8F5210
-F4DF2B4DBEA1F24B57C.highlight.minted
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [56]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [57]
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 107.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 107.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 107.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 107.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 108.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 108.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 108.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 108.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 143.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 143.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 143.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 143.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [58]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [59]
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 210.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 210.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 210.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 210.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 211.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 211.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 211.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 211.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 212.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 212.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 212.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 212.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 213.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 213.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 213.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 213.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 214.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 214.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 214.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 214.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 215.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 215.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 215.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 215.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 216.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 216.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 216.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 216.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 217.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 217.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 217.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 217.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 218.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 218.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 218.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 218.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [60]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [61]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [62]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [63])
-[64]
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/D8D9824B7B695
-17443FFFE353271E08C.highlight.minted
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 13.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 13.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 13.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 13.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 14.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 14.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 14.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 14.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 15.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 15.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 15.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 15.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 20.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 20.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 20.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 20.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 21.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 21.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 21.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 21.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 27.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 27.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 27.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 27.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [65]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [66])
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/2018674F6EFC8
-588E7431566DB3FE363.highlight.minted [67]) [68]
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/5F4A56EE32160
-71A529E8865B47FBD2C.highlight.minted
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [69]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [70]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [71])
-[72]
-\openout7 = `_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted'.
-
-runsystem(latexminted highlight  --timestamp 20260611145032 FAD58DE7366495DB465
-0CFEFAC2FCD61)...executed safely (allowed).
-
-
-(/Users/george/projects/distributed_cluster_platform/docs/_minted/B221C41E25572
-81D25500976DC58FB2E.highlight.minted
+(/Users/george/projects/distributed_cluster_platform/docs/_minted/A414BA39781BD
+662B1E67E35F25D2D23.highlight.minted
 LaTeX Info: Symbol \textasciigrave not provided by
             font family pcr in TS1 encoding.
             Default family used instead on input line 16.
@@ -2202,25 +1700,34 @@ LaTeX Info: Symbol \textasciigrave not provided by
 LaTeX Info: Symbol \textasciigrave not provided by
             font family pcr in TS1 encoding.
             Default family used instead on input line 17.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [73]
+ [46]
 LaTeX Info: Symbol \textasciigrave not provided by
             font family pcr in TS1 encoding.
-            Default family used instead on input line 60.
+            Default family used instead on input line 54.
 LaTeX Info: Symbol \textasciigrave not provided by
             font family pcr in TS1 encoding.
-            Default family used instead on input line 60.
+            Default family used instead on input line 54.
 LaTeX Info: Symbol \textasciigrave not provided by
             font family pcr in TS1 encoding.
-            Default family used instead on input line 60.
+            Default family used instead on input line 54.
 LaTeX Info: Symbol \textasciigrave not provided by
             font family pcr in TS1 encoding.
-            Default family used instead on input line 60.
+            Default family used instead on input line 54.
+LaTeX Info: Symbol \textasciigrave not provided by
+            font family pcr in TS1 encoding.
+            Default family used instead on input line 66.
+LaTeX Info: Symbol \textasciigrave not provided by
+            font family pcr in TS1 encoding.
+            Default family used instead on input line 66.
+LaTeX Info: Symbol \textasciigrave not provided by
+            font family pcr in TS1 encoding.
+            Default family used instead on input line 66.
+LaTeX Info: Symbol \textasciigrave not provided by
+            font family pcr in TS1 encoding.
+            Default family used instead on input line 66.
+LaTeX Info: Symbol \textasciigrave not provided by
+            font family pcr in TS1 encoding.
+            Default family used instead on input line 67.
 LaTeX Info: Symbol \textasciigrave not provided by
             font family pcr in TS1 encoding.
             Default family used instead on input line 67.
@@ -2230,140 +1737,44 @@ LaTeX Info: Symbol \textasciigrave not provided by
 LaTeX Info: Symbol \textasciigrave not provided by
             font family pcr in TS1 encoding.
             Default family used instead on input line 67.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 67.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 68.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 68.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 68.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 68.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 81.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 81.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 81.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 81.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 88.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 88.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 88.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 88.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 89.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 89.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 89.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 89.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 101.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 101.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 101.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 101.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 108.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 108.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 108.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 108.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 109.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 109.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 109.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family pcr in TS1 encoding.
-            Default family used instead on input line 109.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [74]))
-[75] [76
-
-]
-\openout7 = `_FAD58DE7366495DB4650CFEFAC2FCD61.data.minted'.
-
-runsystem(latexminted clean  --timestamp 20260611145032 FAD58DE7366495DB4650CFE
-FAC2FCD61)...executed safely (allowed).
-
- (/Users/george/projects/distributed_cluster_platform/docs/main.aux)
+ [47]))
+[48] (/Users/george/projects/distributed_cluster_platform/docs/main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 31C7557A8162D4DC92C59A77E265E800;12133.
+(rerunfilecheck)             Checksum: DE8EECDAB842DC2A2E0227D24E43972B;11656.
  ) 
 Here is how much of TeX's memory you used:
- 33407 strings out of 467525
- 664945 string characters out of 5418983
- 1262139 words of memory out of 5000000
- 61419 multiletter control sequences out of 15000+600000
- 717142 words of font info for 168 fonts, out of 8000000 for 9000
+ 33314 strings out of 467525
+ 661305 string characters out of 5418983
+ 1302139 words of memory out of 5000000
+ 61378 multiletter control sequences out of 15000+600000
+ 716795 words of font info for 170 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 95i,18n,108p,1430b,1271s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
-></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-</usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></
-usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></us
-r/local/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/local/
-texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/
-2026/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/local/texlive/2026/te
-xmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2026/texmf-dist/f
-onts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type
-1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/time
-s/utmri8a.pfb>
+ 95i,18n,108p,1115b,1273s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb><
+/usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></u
+sr/local/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/local
+/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive
+/2026/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/local/texlive/2026/t
+exmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2026/texmf-dist/
+fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/typ
+e1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/tim
+es/utmri8a.pfb>
 Output written on /Users/george/projects/distributed_cluster_platform/docs/main
-.pdf (86 pages, 2452898 bytes).
+.pdf (58 pages, 2498150 bytes).
 PDF statistics:
- 1037 PDF objects out of 1200 (max. 8388607)
- 873 compressed objects within 9 object streams
- 222 named destinations out of 1000 (max. 500000)
- 753 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 909 PDF objects out of 1000 (max. 8388607)
+ 764 compressed objects within 8 object streams
+ 188 named destinations out of 1000 (max. 500000)
+ 721 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,29 +1,9 @@
 \silentchapter{Annexes}
 
-The following annexes contain the source code of the main components developed for the platform.
+The following annexes contain the source code of the most important components of the platform: node discovery, failure detection and recovery, scheduling, load balancing and the Raft state machine. The data model is described in section 3.3 and the remaining packages (cluster state, REST API, security and Docker integration) are part of the complete source code submitted together with the thesis.
 
-\section{Domain Models}
-\label{anexa1:domain}
-
-\begin{code}
-    \inputminted{go}{../internal/domain/models.go}
-    \caption{internal/domain/models.go -- Data models}
-    \label{code:models}
-\end{code}
-
-\newpage
-\section{Cluster State}
-\label{anexa2:state}
-
-\begin{code}
-    \inputminted{go}{../internal/cluster/state.go}
-    \caption{internal/cluster/state.go -- In-memory cluster state}
-    \label{code:state}
-\end{code}
-
-\newpage
 \section{Heartbeat Receiver}
-\label{anexa3:receiver}
+\label{anexa1:receiver}
 
 \begin{code}
     \inputminted{go}{../internal/heartbeat/receiver.go}
@@ -31,9 +11,8 @@ The following annexes contain the source code of the main components developed f
     \label{code:receiver}
 \end{code}
 
-\newpage
 \section{Fault Tolerance}
-\label{anexa4:fault}
+\label{anexa2:fault}
 
 \begin{code}
     \inputminted{go}{../internal/fault/tolerance.go}
@@ -41,9 +20,8 @@ The following annexes contain the source code of the main components developed f
     \label{code:fault}
 \end{code}
 
-\newpage
 \section{Load Balancer}
-\label{anexa5:loadbalancer}
+\label{anexa3:loadbalancer}
 
 \begin{code}
     \inputminted{go}{../internal/loadbalancer/balancer.go}
@@ -63,55 +41,17 @@ The following annexes contain the source code of the main components developed f
     \label{code:lb_weighted}
 \end{code}
 
-\newpage
 \section{Scheduler}
-\label{anexa6:scheduler}
+\label{anexa4:scheduler}
 
 \begin{code}
     \inputminted{go}{../internal/scheduler/scheduler.go}
-    \caption{internal/scheduler/scheduler.go -- Node selection by pool and resources}
+    \caption{internal/scheduler/scheduler.go -- All-or-nothing replica planning}
     \label{code:scheduler}
 \end{code}
 
-\newpage
-\section{REST API Server}
-\label{anexa7:api}
-
-\begin{code}
-    \inputminted{go}{../internal/api/server.go}
-    \caption{internal/api/server.go -- REST API with JWT middleware}
-    \label{code:api}
-\end{code}
-
-\newpage
-\section{Security -- JWT and ACL}
-\label{anexa8:security}
-
-\begin{code}
-    \inputminted{go}{../internal/security/jwt.go}
-    \caption{internal/security/jwt.go -- JWT token generation and validation}
-    \label{code:jwt}
-\end{code}
-
-\begin{code}
-    \inputminted{go}{../internal/security/acl.go}
-    \caption{internal/security/acl.go -- Role-based access control}
-    \label{code:acl}
-\end{code}
-
-\newpage
-\section{Docker Integration}
-\label{anexa9:docker}
-
-\begin{code}
-    \inputminted{go}{../internal/agent/docker.go}
-    \caption{internal/agent/docker.go -- Docker container management}
-    \label{code:docker}
-\end{code}
-
-\newpage
 \section{Raft FSM}
-\label{anexa10:raft}
+\label{anexa5:raft}
 
 \begin{code}
     \inputminted{go}{../internal/cluster/fsm.go}

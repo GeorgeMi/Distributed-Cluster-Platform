@@ -59,18 +59,25 @@ func (s *State) RemoveNode(id string) {
 	delete(s.nodes, id)
 }
 
-func (s *State) UpdateNodeMetrics(nodeID string, cpuUsed float64, ramUsed int64, activeConns int) error {
+// UpdateNodeFromHeartbeat refreshes a node's metrics and address.
+// A DEAD node is not brought back to ALIVE here; that is handled
+// by the fault tolerance module after duplicate containers are killed.
+func (s *State) UpdateNodeFromHeartbeat(hb domain.Heartbeat) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	n, ok := s.nodes[nodeID]
+	n, ok := s.nodes[hb.NodeID]
 	if !ok {
-		return fmt.Errorf("node %s not found", nodeID)
+		return fmt.Errorf("node %s not found", hb.NodeID)
 	}
-	n.UsedCPU = cpuUsed
-	n.UsedRAM = ramUsed
-	n.ActiveConnections = activeConns
+	n.Address = hb.Address
+	n.TotalCPU = hb.TotalCPU
+	n.UsedCPU = hb.UsedCPU
+	n.TotalRAM = hb.TotalRAM
+	n.UsedRAM = hb.UsedRAM
 	n.LastHeartbeat = time.Now()
-	n.Status = domain.NodeAlive
+	if n.Status != domain.NodeDead {
+		n.Status = domain.NodeAlive
+	}
 	return nil
 }
 
@@ -116,17 +123,6 @@ func (s *State) RemoveService(id string) {
 	delete(s.services, id)
 }
 
-func (s *State) SetServiceReplicas(serviceID string, replicas int) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	svc, ok := s.services[serviceID]
-	if !ok {
-		return fmt.Errorf("service %s not found", serviceID)
-	}
-	svc.Replicas = replicas
-	return nil
-}
-
 // --- Containers ---
 
 func (s *State) AddContainer(c *domain.Container) {
@@ -161,6 +157,18 @@ func (s *State) GetActiveContainersByNode(nodeID string) []domain.Container {
 	for _, c := range s.containers {
 		if c.NodeID == nodeID && (c.Status == domain.ContainerRunning || c.Status == domain.ContainerScheduled) {
 			result = append(result, *c)
+		}
+	}
+	return result
+}
+
+func (s *State) GetContainersByStatus(status string) []*domain.Container {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var result []*domain.Container
+	for _, c := range s.containers {
+		if c.Status == status {
+			result = append(result, c)
 		}
 	}
 	return result
@@ -220,20 +228,23 @@ func (s *State) GetAllPools() []*domain.ResourcePool {
 	return result
 }
 
-func (s *State) AssignNodeToPool(nodeID string, node *domain.Node) {
+// AssignNodeToPool adds the node to the first matching pool.
+// It returns false if no pool matches the node's resources.
+func (s *State) AssignNodeToPool(nodeID string, node *domain.Node) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for _, pool := range s.pools {
 		if pool.MatchesNode(*node) {
 			for _, existing := range pool.NodeIDs {
 				if existing == nodeID {
-					return
+					return true
 				}
 			}
 			pool.NodeIDs = append(pool.NodeIDs, nodeID)
-			return
+			return true
 		}
 	}
+	return false
 }
 
 func (s *State) GetPoolNodes(poolID string) []*domain.Node {

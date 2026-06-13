@@ -13,11 +13,11 @@ The platform is implemented in \textbf{Go}, chosen for its built-in concurrency 
 
 Heartbeat communication uses \textbf{UDP multicast}, which is lightweight (no connection setup, no handshake) and allows a single packet to reach all master nodes simultaneously. This is more efficient than TCP for periodic status messages that do not require acknowledgment.
 
-\textbf{Docker} is used as the container runtime on worker nodes. The Docker SDK for Go provides a simple API for creating, starting and stopping containers programmatically.
+\textbf{Docker} is used as the container runtime on worker nodes. The Docker SDK for Go \cite{misc:web:docker:sdk} provides a simple API for creating, starting and stopping containers programmatically.
 
-For consensus and state replication between master nodes, the platform uses \textbf{HashiCorp Raft}, an open-source Go implementation of the Raft consensus protocol.
+For consensus and state replication between master nodes, the platform uses \textbf{HashiCorp Raft} \cite{misc:web:hashicorp:raft}, an open-source Go implementation of the Raft consensus protocol.
 
-User authentication is handled through \textbf{JWT (JSON Web Tokens)}. JWTs are stateless (no server-side session storage needed) and can encode the user's role directly in the token.
+User authentication is handled through \textbf{JWT (JSON Web Tokens)}, a standard defined in RFC 7519 \cite{misc:rfc7519} and implemented in the platform with the golang-jwt library \cite{misc:web:golang:jwt}. JWTs are stateless (no server-side session storage needed) and can encode the user's role directly in the token.
 
 \section{Component Overview}
 
@@ -85,7 +85,7 @@ The worker is started with the following flags:
 Master and worker nodes communicate through two channels:
 \begin{itemize}
     \item \textbf{Heartbeat}. UDP multicast, every 5 seconds. The worker sends its metrics and the master updates its state. Fire-and-forget, no acknowledgment needed.
-    \item \textbf{Commands}. TCP, from master to worker. Used for StartContainer and KillContainers. Only triggered on deploy, delete, or fault recovery.
+    \item \textbf{Commands}. TCP, from master to worker. Used for StartContainer and KillContainers. Only triggered on deploy, delete or fault recovery.
 \end{itemize}
 
 All nodes run within a trusted internal network, so no TLS encryption is used. Both node-to-master traffic (heartbeats and commands) and Raft traffic between master nodes use plain TCP and UDP. Adding TLS would be a natural next step for an untrusted network.
@@ -102,19 +102,19 @@ All nodes run within a trusted internal network, so no TLS encryption is used. B
 \newpage
 The platform uses the following data entities:
 
-\textbf{Node} represents a worker machine in the cluster. It stores the node's address, total and used CPU/RAM, its current status (ALIVE, SUSPECT, DEAD, or REMOVED) and the timestamp of the last received heartbeat.
+\textbf{Node} represents a worker machine in the cluster. It stores the node's address, total and used CPU/RAM, its current status (ALIVE, SUSPECT, DEAD or REMOVED) and the timestamp of the last received heartbeat.
 
 \textbf{Service} represents what the user wants to run. It contains the Docker image name, required CPU and RAM, the number of desired replicas, the target pool and runtime parameters (environment variables, ports, command). These parameters are saved in the cluster state so that containers can be restarted identically during fault recovery.
 
-\textbf{Container} is a running instance of a service on a specific node. It tracks the Docker container ID and its status (PENDING, SCHEDULED, RUNNING, FAILED, RESCHEDULING, or STOPPED).
+\textbf{Container} is a running instance of a service on a specific node. It tracks the Docker container ID and its status (PENDING, SCHEDULED, RUNNING, FAILED, RESCHEDULING or STOPPED).
 
-\textbf{ResourcePool} groups nodes with similar hardware. Each pool has CPU and RAM ranges. When a new node is discovered, it is automatically assigned to the matching pool based on its resources.
+\textbf{ResourcePool} groups nodes with similar hardware. Each pool has CPU and RAM ranges. When a new node is discovered, it is automatically assigned to the matching pool based on its resources. The master creates three default pools at startup: \texttt{general} (up to 3 CPU cores), \texttt{high-cpu} (4 or more cores) and \texttt{high-ram} (more than 32 GB of RAM). The ranges do not overlap, so every node matches exactly one pool. If a node matches no pool, a warning is written in the log and the node cannot receive containers.
 
-\textbf{User} has an ID, username, role (ADMIN, WRITER, or READER) and a token hash for authentication.
+\textbf{User} has an ID, username, role (ADMIN, WRITER or READER) and a token hash for authentication.
 
 \textbf{AuditEntry} records a single event with a timestamp, user ID, action, resource and details.
 
-\textbf{LoadBalancer} is an interface with a single method: SelectNode. It has two implementations: LeastConnectionsLB (picks the node with fewest active connections) and WeightedLB (picks the node with most available resources).
+\textbf{LoadBalancer} is an interface with a single method: SelectNode. It has two implementations: LeastConnectionsLB (picks the node with the fewest running containers) and WeightedLB (picks the node with most available resources).
 
 All these entities are stored in an in-memory data structure called \texttt{State}, which acts as the single source of truth for the cluster. The State uses Go maps (one per entity type) protected by a read-write mutex (\texttt{sync.RWMutex}).
 
@@ -135,19 +135,19 @@ This section describes how heartbeats work, how new nodes are discovered and how
     \label{fig:heartbeat}
 \end{figure}
 
-Node discovery is fully automatic. There is no explicit join or leave request. A worker simply starts sending heartbeats and the master discovers it. When a worker stops, the master notices the missing heartbeats and removes it. Explicit join and leave requests would add unnecessary complexity. The heartbeat-based approach is simpler and handles both planned shutdowns and unexpected crashes in the same way.
+Node discovery is fully automatic. There is no explicit join or leave request. A worker simply starts sending heartbeats and the master discovers it. When a worker stops, the master notices the missing heartbeats, marks it as dead and reschedules its containers. Explicit join and leave requests would add unnecessary complexity. The heartbeat-based approach is simpler and handles both planned shutdowns and unexpected crashes in the same way.
 
 \subsection{Auto-Join}
 
-When the master receives the first heartbeat from an unknown node, it automatically adds the node to the cluster state (the in-memory data structure described in section 3.3) with status ALIVE and assigns it to the matching resource pool based on the CPU and RAM values reported in the heartbeat. There is no separate database. The live state is kept in memory using Go maps protected by a mutex, while write operations (services and containers) are also stored in the Raft log on disk. When the master restarts without bootstrapping a fresh cluster, it replays the Raft log to rebuild these entries, and node entries reappear from the next heartbeats.
+When the master receives the first heartbeat from an unknown node, it automatically adds the node to the cluster state (the in-memory data structure described in section 3.3) with status ALIVE and assigns it to the matching resource pool based on the CPU and RAM values reported in the heartbeat. There is no separate database. The live state is kept in memory using Go maps protected by a mutex, while write operations (services and containers) are also stored in the Raft log on disk. When the master restarts without bootstrapping a fresh cluster, it replays the Raft log to rebuild these entries and node entries reappear from the next heartbeats.
 
 \subsection{Heartbeat Loop}
 
 Every 5 seconds, each worker sends a UDP multicast packet containing:
 \begin{itemize}
-    \item CPU usage (percentage)
-    \item RAM usage (percentage)
-    \item Number of active connections
+    \item Total and used CPU (number of cores; usage is approximated from the system load average)
+    \item Total and used RAM (in MB)
+    \item The node's address for receiving TCP commands
     \item List of running containers
 \end{itemize}
 
@@ -157,7 +157,7 @@ The metrics sent in the heartbeat are important for two reasons. First, the Sche
 
 \subsection{Node Removal}
 
-There is no explicit leave request. When a worker stops (crash, shutdown or network failure), it simply stops sending heartbeats. The master detects the absence through the fault tolerance mechanism (15 seconds SUSPECT, 30 seconds DEAD), marks the node DEAD and moves its containers to other nodes. This means that a planned shutdown and an unexpected crash are handled in exactly the same way. The master does not need to distinguish between the two cases because the result is the same: the node is no longer available and its containers need to be moved elsewhere.
+There is no explicit leave request. When a worker stops (crash, shutdown or network failure), it simply stops sending heartbeats. The master detects the absence through the fault tolerance mechanism (15 seconds SUSPECT, 30 seconds DEAD), marks the node DEAD and starts fresh containers on other nodes. This means that a planned shutdown and an unexpected crash are handled in exactly the same way. The master does not need to distinguish between the two cases because the result is the same: the node is no longer available and its containers need to be moved elsewhere.
 
 \section{Fault Tolerance: Detection and Recovery}
 
@@ -172,25 +172,27 @@ Fault tolerance is the most complex part of the platform. It handles three scena
 
 \subsection{Failure Detection}
 
-The Fault Tolerance module runs a periodic check (every 5 seconds) on all nodes. For each node, it computes the time since the last heartbeat. After 5 seconds (1 missed heartbeat), no action is taken because it could be network jitter. After 10 seconds (2 missed heartbeats), still no action. After \textbf{15 seconds} (3 missed heartbeats), the node is marked \textbf{SUSPECT}. Something is probably wrong, but the system gives the node a chance to recover. After \textbf{30 seconds} (6 missed heartbeats), the node is marked \textbf{DEAD} and recovery begins.
+The Fault Tolerance module runs a periodic check (every 5 seconds) on all nodes. For each node, it computes the time since the last heartbeat. After 5 seconds (1 missed heartbeat), no action is taken because it could be network jitter. After \textbf{15 seconds} (3 missed heartbeats), the node is marked \textbf{SUSPECT}. After \textbf{30 seconds} (6 missed heartbeats), the node is marked \textbf{DEAD} and recovery begins.
 
-The timing values (15 seconds for SUSPECT and 30 seconds for DEAD) are passed as parameters when creating the Fault Tolerance module. They can be changed without modifying the code. Shorter values make the system react faster to failures but increase the risk of false positives (marking a healthy node as dead because of a temporary network problem). Longer values reduce false positives but mean that containers on a dead node will not be restarted for a longer time.
+The timing values (15 seconds for SUSPECT and 30 seconds for DEAD) are passed as parameters when creating the Fault Tolerance module. Shorter values make the system react faster to failures but increase the risk of false positives (marking a healthy node as dead because of a temporary network problem). Longer values reduce false positives but mean that containers on a dead node will not be restarted for a longer time.
 
-In the implementation, the check runs as a goroutine with a ticker. Every 5 seconds, the ticker fires and the module loops through all nodes, comparing \texttt{time.Now()} with each node's \texttt{LastHeartbeat} timestamp. Nodes that are already DEAD or REMOVED are skipped.
+In the implementation, the check runs as a goroutine with a ticker. Nodes that are already DEAD or REMOVED are skipped.
 
 \subsection{Container Recovery}
 
-When a node is marked DEAD, its services still need to run. The system starts fresh containers on healthy nodes. For each service that had containers on the dead node, the Fault Tolerance module asks the Scheduler to find a new node. The Scheduler filters nodes in the matching pool with enough resources and passes the candidates to the Load Balancer, which picks the best node. A StartContainer command is then sent to the chosen node with the full service parameters (image, CPU limit, RAM limit, environment variables, ports, command). If no node has enough resources, the container stays in PENDING status until resources become available.
+When a node is marked DEAD, its services still need to run. The system starts fresh containers on healthy nodes. Recovery only looks at containers that were active on the dead node (RUNNING or SCHEDULED); containers that were already stopped or failed are not restarted. For each active container, the Fault Tolerance module asks the Scheduler to find a new node. The Scheduler filters nodes in the matching pool with enough resources and passes the candidates to the Load Balancer, which picks the best node. A StartContainer command is then sent to the chosen node with the full service parameters (image, CPU limit, RAM limit, environment variables, ports, command). If no node has enough resources, the container stays in PENDING status. A retry loop on the leader checks PENDING containers every 10 seconds. PENDING containers that belong to the same service are started only together (all-or-nothing), matching the deployment semantics; a single container that lost its node during recovery forms a group of one and is retried individually.
 
-The key point is that containers are not moved from the dead node but started fresh from the service parameters saved in the cluster state. This is why the Service entity stores all runtime parameters (image, environment variables, ports, command). Without them, the system would not know how to recreate the container. The old container on the dead node is marked as STOPPED in the cluster state and a new container entry is created for the replacement.
+The key point is that containers are not moved from the dead node but started fresh from the service parameters saved in the cluster state. This is why the Service entity stores all runtime parameters (image, environment variables, ports, command). The old container on the dead node is marked as STOPPED in the cluster state and a new container entry is created for the replacement.
 
 \subsection{Split-Brain Prevention}
 
-When a node that was marked DEAD comes back online (for example, after a temporary network failure), it sends a heartbeat. The master detects this as a late heartbeat and sends a \texttt{KillContainers} command to the recovered node. This stops all containers on the recovered node, because those containers have already been rescheduled onto other healthy nodes. Without this mechanism, the same containers would run on both the recovered node and the new nodes, creating duplicates.
+When a node that was marked DEAD comes back online (for example, after a temporary network failure), it sends a heartbeat. The leader detects this as a late heartbeat and sends a \texttt{KillContainers} command to the recovered node. This stops all containers on the recovered node, because those containers have already been rescheduled onto other healthy nodes. Without this mechanism, the same containers would run on both the recovered node and the new nodes, creating duplicates.
 
-After killing the duplicate containers, the recovered node continues sending heartbeats and becomes available for new scheduling. It does not need to rejoin the cluster or go through any special process. From the master's perspective, it is just a regular ALIVE node with no containers, ready to accept new work.
+The order of operations matters here. The node stays in the DEAD state until the worker confirms that the duplicate containers were killed. Only then is the node brought back to ALIVE and made available for new scheduling. If the node were marked ALIVE first, the Scheduler could place a new container on it and the KillContainers command would then destroy that new container by mistake. If the command fails (for example, the worker is not reachable yet), the node stays DEAD and the next heartbeat triggers another attempt. Only the leader sends the command; follower masters simply mark the node ALIVE in their local view.
 
-The term "split-brain" comes from a scenario where the network is split into two parts and each part thinks the other is dead. In this platform, split-brain can happen when the master cannot reach a worker (and marks it DEAD) but the worker is still running its containers. When the network heals, there are two copies of each container. The KillContainers command resolves this by stopping the old copies on the recovered node.
+The worker finds its containers through Docker labels (the node ID and service ID are attached to every container it creates), so it can remove them even if the worker process itself crashed and was restarted in the meantime. After the cleanup, the recovered node is a regular ALIVE node with no containers, ready to accept new work.
+
+The term ``split-brain'' comes from a scenario where the network is split into two parts and each part thinks the other is dead. In this platform, split-brain can happen when the master cannot reach a worker (and marks it DEAD) but the worker is still running its containers.
 
 \section{Worker Node State Machine}
 
@@ -210,9 +212,9 @@ A worker node can be in one of four states:
     \item \textbf{REMOVED}. A reserved final state for a node that has been fully taken out of the cluster. In the current implementation a dead node stays in the DEAD state after its containers are rescheduled; automatic cleanup to REMOVED is left as future work.
 \end{itemize}
 
-The transitions between states are: when the master receives the first heartbeat from a node, it enters the ALIVE state (auto-join). While heartbeats arrive every 5 seconds, the node stays ALIVE. If no heartbeat is received for 15 seconds, the node moves to SUSPECT. If a heartbeat arrives while the node is SUSPECT, it goes back to ALIVE. If no heartbeat is received for 30 seconds, the node moves to DEAD and its containers are rescheduled to other nodes. The dead node stays in the cluster state in the DEAD state; if it later starts sending heartbeats again, it is brought back to ALIVE after its old containers are killed (see split-brain prevention).
+The transitions between states are: when the master receives the first heartbeat from a node, it enters the ALIVE state (auto-join). If no heartbeat is received for 15 seconds, the node moves to SUSPECT. If a heartbeat arrives while the node is SUSPECT, it goes back to ALIVE. If no heartbeat is received for 30 seconds, the node moves to DEAD and its containers are rescheduled to other nodes. The dead node stays in the cluster state in the DEAD state; if it later starts sending heartbeats again, it is brought back to ALIVE only after its old containers are confirmed killed (see split-brain prevention).
 
-The SUSPECT state exists to avoid false positives. A single missed heartbeat could be caused by a short network delay, not a real failure. By waiting for 3 missed heartbeats (15 seconds) before acting, the system avoids unnecessary container restarts that would waste resources and cause brief service interruptions.
+The SUSPECT state exists to avoid false positives. A single missed heartbeat could be caused by a short network delay, not a real failure.
 
 \newpage
 \section{Load Balancer}
@@ -227,21 +229,23 @@ type LoadBalancer interface {
 
 This design allows the load balancing strategy to be swapped without modifying the rest of the code. The platform provides two implementations:
 
-\textbf{LeastConnectionsLB} picks the node with the fewest running containers. It iterates through the candidate list and selects the node with the smallest container count. This strategy works well when all containers have similar resource requirements.
+\textbf{LeastConnectionsLB} picks the node with the fewest running containers. The name comes from the classic load balancing strategy; in this platform, the number of running containers is used as the connection count. This strategy works well when all containers have similar resource requirements.
 
-\textbf{WeightedLB} picks the node with the most available resources. The score is computed as a weighted score between available CPU and available RAM. The node with the highest score is selected. This strategy is better when containers have varying resource needs.
+\textbf{WeightedLB} picks the node with the most available resources. The score is computed as a weighted score between available CPU and available RAM. This strategy is better when containers have varying resource needs.
 
 The master can be started with either strategy using the \texttt{-lb} flag: \texttt{-lb leastconn} (default) or \texttt{-lb weighted}.
 
-The \texttt{LoadBalancer} interface serves as a public API that allows anyone to implement their own node selection policy. A custom implementation only needs to satisfy the \texttt{SelectNode} method and it can be plugged into the platform without modifying any other component.
+A custom strategy only needs to satisfy the \texttt{SelectNode} method. For example, someone could write a \texttt{RandomLB} that picks a random node from the candidate list or a \texttt{LocalityLB} that prefers nodes in the same network zone. The Scheduler does not know or care which strategy is used. It just calls \texttt{SelectNode} and gets back a node.
 
-For example, someone could write a \texttt{RandomLB} that picks a random node from the candidate list, or a \texttt{LocalityLB} that prefers nodes in the same network zone. The Scheduler does not know or care which strategy is used. It just calls \texttt{SelectNode} and gets back a node. This is a common design pattern in Go called an interface, which allows different implementations to be used interchangeably.
-
-The Weighted strategy normalizes both CPU and RAM to a 0 to 1 range (percentage of total resources) before adding them together. This ensures that a node with 8 free CPU cores and 16 GB free RAM is not unfairly favored over a node with 4 free CPU cores and 64 GB free RAM. Both resources contribute equally to the final score.
+The Weighted strategy normalizes both CPU and RAM to a 0 to 1 range (percentage of total resources) before adding them together, so that a node with 8 free CPU cores and 16 GB free RAM is not unfairly favored over a node with 4 free CPU cores and 64 GB free RAM.
 
 \section{REST API}
 
-The master exposes a REST API on port 8090 (configurable via \texttt{-api} flag). The master also accepts \texttt{-multicast} to configure the UDP multicast address for heartbeats (default: \texttt{239.0.0.1:9090}). The following endpoints are available:
+Every master exposes the REST API (port 8090 by default, configurable via the \texttt{-api} flag). The master also accepts \texttt{-multicast} to configure the UDP multicast address for heartbeats (default: \texttt{239.0.0.1:9090}).
+
+Users do not need to know which master is the current leader. Read requests are answered by any master from its own copy of the state. Write requests (\texttt{POST} and \texttt{DELETE}) must run on the leader, so a follower that receives one forwards it transparently to the leader's API and returns the leader's response. The forwarding uses the \texttt{-peers-api} flag, which gives every master the API address of all masters (\texttt{id=host:port,...}); the follower looks up the current leader's ID in this map. A forwarded request is marked with a header so it is never forwarded twice. This way, when the leader dies and a new one is elected, users keep sending requests to the same address as before.
+
+The following endpoints are available:
 
 \begin{itemize}
     \item \texttt{POST /login}. Authenticate with username/password, returns access and refresh tokens
@@ -280,23 +284,22 @@ The \texttt{POST /services} endpoint accepts a JSON body:
     \label{fig:deployment_flow}
 \end{figure}
 
-When a user sends a \texttt{POST /services} request, the API creates a Service in the cluster state and schedules the requested number of replicas. For each replica, the Scheduler and Load Balancer work together:
+When a user sends a \texttt{POST /services} request, the API creates a Service in the cluster state and asks the Scheduler to plan all requested replicas at once. Scheduling is \textbf{all-or-nothing}: either every replica gets a node or no container is started.
 
 \begin{enumerate}
-    \item The Scheduler retrieves all nodes in the requested resource pool.
-    \item It filters out nodes that are not ALIVE or do not have enough CPU and RAM.
-    \item It passes the candidate list to the Load Balancer.
-    \item The Load Balancer returns the best node.
-    \item A \texttt{StartContainer} command is sent to the selected node via TCP with the full service parameters.
+    \item The Scheduler retrieves all nodes in the requested resource pool and builds working copies of them.
+    \item For each replica, it filters out nodes that are not ALIVE, do not have enough CPU and RAM or already use one of the requested ports (each port can be bound only once per machine) and passes the candidates to the Load Balancer, which picks the best node.
+    \item The CPU, RAM and ports of the chosen node are updated in the working copy, so the next replica sees the remaining capacity. A single request can therefore never oversubscribe a node.
+    \item If any replica cannot be placed, nothing is started: all replicas are created with PENDING status and the retry loop starts the whole group later, when the cluster can take all of them.
+    \item Otherwise, a \texttt{StartContainer} command is sent for each replica to its planned node via TCP with the full service parameters.
     \item The worker pulls the Docker image, creates and starts the container and returns the container ID.
-    \item If no node has enough resources, the container is created with PENDING status.
 \end{enumerate}
 
-The API returns a \texttt{201 Created} response with the service ID and a list of containers with their statuses and assigned nodes.
+The API returns a \texttt{201 Created} response with the service ID and a list of containers with their statuses and assigned nodes. When the plan fails, the response also contains a message explaining how many replicas could be placed and all containers are reported as PENDING.
 
 This same scheduling flow is used for fault recovery when containers need to be rescheduled after a node dies. The only difference is that during fault recovery, the Fault Tolerance module triggers the scheduling instead of the API. The Scheduler and Load Balancer do not know where the request came from. They just find the best node for the service.
 
-If a service has 3 replicas, the scheduling loop runs 3 times. Each time, it may select a different node because the Load Balancer sees the updated container counts after each placement. For example, with LeastConnections: the first replica goes to worker-1 (0 containers), the second goes to worker-2 (0 containers) and the third goes back to worker-1 (1 container, but worker-2 now also has 1). This naturally distributes replicas across nodes.
+If a service has 3 replicas, the planning loop runs 3 times. Each placement updates the working copy of the chosen node (container count, free CPU and RAM, used ports), so both strategies see the effect of the earlier replicas in the same request. With Least Connections, the replicas spread naturally: the first goes to worker-1 (0 containers), the second to worker-2 (0 containers) and the third back to worker-1. With Weighted, the score of a node drops as replicas are assigned to it, which has the same spreading effect. Between requests, the free resources still come from the last heartbeat, which refreshes every 5 seconds.
 
 When a service is deleted via \texttt{DELETE /services/\{id\}}, the API sends \texttt{KillContainers} commands to all workers running that service's containers, marks the containers as STOPPED and removes the service from the cluster state. The KillContainers command includes the service ID so that the worker only stops containers belonging to that service and not all containers on the node.
 
@@ -331,9 +334,9 @@ The worker pulls the Docker image (if not already present), creates a container 
 {"type": "KillContainers", "serviceID": "svc-abc123"}
 \end{verbatim}
 
-Commands are sent as JSON over TCP. The master uses the node's address (reported in heartbeats) to establish a connection, sends the command and waits for a response. This communication is synchronous, meaning the master waits for the worker to confirm before proceeding. If the connection fails (for example because the worker crashed), the master marks the container as PENDING and tries again later.
+Commands are sent as JSON over TCP. The master uses the node's address (reported in heartbeats) to establish a connection, sends the command and waits for a response. This communication is synchronous, meaning the master waits for the worker to confirm before proceeding. If the connection fails (for example because the worker crashed), the master marks the container as PENDING and the retry loop tries again every 10 seconds.
 
-The worker integrates with Docker through the Docker SDK for Go. A \texttt{DockerManager} component wraps the Docker client and tracks all containers started by this worker. When the worker shuts down, it stops and removes all its containers automatically. The list of running container IDs is included in each heartbeat. The master keeps its own record of container placement from the scheduling decisions it makes, so this list is currently informational.
+The worker integrates with Docker through the Docker SDK for Go. A \texttt{DockerManager} component wraps the Docker client. Every container it creates is tagged with two Docker labels: the worker's node ID and the service ID. The worker finds its own containers by these labels, so the tracking survives a crash and restart of the worker process. The container name has the form \texttt{dcp-<nodeID>-<serviceID>-<n>}, which also stays unique when several workers share the same Docker daemon on one machine. If Docker creates a container but fails to start it, the worker removes the created container so it does not leak. When the worker shuts down, it stops and removes all its containers automatically. The list of running container IDs is included in each heartbeat. The master keeps its own record of container placement from the scheduling decisions it makes, so this list is currently informational.
 
 When starting a container, the worker first pulls the Docker image from a registry (like Docker Hub). If the image is already present on the machine, this step is skipped. Then it creates the container with the resource limits (CPU and RAM) that the master specified. The CPU limit is set using Docker's \texttt{NanoCPUs} field (0.5 CPU = 500,000,000 nanoseconds of CPU time per second). The RAM limit is set using the \texttt{Memory} field in bytes. These limits are enforced by the Linux kernel through a feature called cgroups, which prevents a container from using more resources than it was assigned.
 
@@ -349,12 +352,12 @@ When starting a container, the worker first pulls the Docker image from a regist
 A container goes through the following states:
 
 \begin{itemize}
-    \item \textbf{PENDING}. The container needs to run, but no node currently has enough resources. It is created in the PENDING state.
+    \item \textbf{PENDING}. The container needs to run, but the cluster cannot currently take it. The retry loop attempts to schedule it every 10 seconds; PENDING containers of the same service start only together (all-or-nothing).
     \item \textbf{SCHEDULED}. A node was found and the container has been assigned. Docker startup is in progress.
     \item \textbf{RUNNING}. Docker started the container successfully. This is the normal operating state.
     \item \textbf{FAILED}. Docker returned an error (invalid image, port conflict, out of memory). The container is marked FAILED.
     \item \textbf{RESCHEDULING}. The host node died. A fresh container needs to be started on another node.
-    \item \textbf{STOPPED}. The container was stopped intentionally when its service was deleted, or replaced during fault recovery. This is a final state.
+    \item \textbf{STOPPED}. The container was stopped intentionally when its service was deleted or replaced during fault recovery. This is a final state.
 \end{itemize}
 
 \section{Security and Audit Architecture}
@@ -383,13 +386,15 @@ JWT is \textbf{stateless}, which means the server does not need to store any ses
 
 When the access token expires after 15 minutes, the client sends the refresh token to \texttt{POST /refresh} and receives a new token pair. This way, the user does not need to enter their password again for 24 hours (the lifetime of the refresh token).
 
+Each token also carries a type field (\texttt{access} or \texttt{refresh}) that is checked during validation. This prevents one token from being used in place of the other: an access token cannot be sent to \texttt{POST /refresh} and a refresh token cannot be used to call the API.
+
 The reason for having two tokens instead of one is security. The access token is sent with every API request, so it is more likely to be intercepted. By keeping it short-lived (15 minutes), the damage from a stolen token is limited. The refresh token is sent only once every 15 minutes to get a new access token, so it is less exposed. If the refresh token is stolen, it can be used for up to 24 hours, but it cannot be used to access the API directly.
 
 In this platform, the secret key used to sign tokens is stored in the master's code. In a production system, it would be stored in a configuration file or a secret manager like HashiCorp Vault.
 
 \subsection{Role-Based Access Control}
 
-The platform has three roles with clearly separated permissions. \textbf{ADMIN} has the broadest access: it can create and delete services, manage users, and view nodes, pools and audit logs. \textbf{WRITER} can deploy and delete services and can view nodes, pools and audit logs but cannot manage users. \textbf{READER} has read-only access and can view services, nodes, pools and audit logs but cannot create or delete anything.
+The platform has three roles with clearly separated permissions. \textbf{ADMIN} has the broadest access: it can create and delete services, manage users and view nodes, pools and audit logs. \textbf{WRITER} can deploy and delete services and can view nodes, pools and audit logs but cannot manage users. \textbf{READER} has read-only access and can view services, nodes, pools and audit logs but cannot create or delete anything.
 
 Every protected API endpoint passes through an authentication and authorization middleware. First, it extracts the JWT from the \texttt{Authorization} header. Then it validates the signature and checks that the token has not expired. Next, it extracts the role from the token claims and checks the ACL table to see if that role has permission for the requested action on the requested resource. If the role does not have permission, the API returns 403 Forbidden and logs an AUTH\_DENIED event in the audit log.
 
@@ -412,7 +417,7 @@ The platform runs 3 master nodes for high availability. Only one is the leader a
 
 The leader sends every state change (node added, service created, container started) to all followers via \texttt{AppendEntries} messages. Each follower confirms that it saved the data. This way, every decision is stored on all 3 nodes. The leader waits for a majority of followers to confirm before considering the change committed. With 3 nodes, a majority is 2, so the leader needs only one follower to confirm. This means the cluster can continue working even if one follower is temporarily unreachable.
 
-The followers do not process API write requests and do not make scheduling or recovery decisions; only the leader does. Each master, including the followers, still receives worker heartbeats over UDP multicast and updates its own node list. For replicated data (services and containers), followers only apply what the leader commits through Raft. Their main purpose is to be ready to take over if the leader fails. This keeps all decision-making in one place.
+The followers do not make scheduling or recovery decisions; only the leader does. A write request sent to a follower's API is forwarded transparently to the leader (see the REST API section), so users are not affected by a leader change. Each master, including the followers, still receives worker heartbeats over UDP multicast and updates its own node list. For replicated data (services and containers), followers only apply what the leader commits through Raft. Their main purpose is to be ready to take over if the leader fails. This keeps all decision-making in one place.
 
 \subsection{Leader Failure and Election}
 
@@ -428,13 +433,13 @@ This mechanism guarantees that two leaders can never exist at the same time. The
 
 \subsection{Implementation}
 
-The Raft layer is implemented using the HashiCorp Raft library. Each master node runs a Raft instance with four components. The \textbf{Finite State Machine (FSM)} applies committed log entries to the cluster state and supports operations like AddNode, RemoveNode, SetNodeStatus, AddService, RemoveService and SetContainerStatus. The \textbf{BoltDB log store} persists the Raft log to disk, ensuring state survives master restarts. The \textbf{TCP transport} handles communication between master nodes. A \textbf{snapshot mechanism} periodically serializes the cluster state for faster recovery when a new master joins or an existing one restarts.
+The Raft layer is implemented using the HashiCorp Raft library. Each master node runs a Raft instance with four components. The \textbf{Finite State Machine (FSM)} applies committed log entries to the cluster state and supports four operations: AddService, RemoveService, AddContainer and SetContainerStatus. The \textbf{BoltDB log store} persists the Raft log to disk, ensuring state survives master restarts. The \textbf{TCP transport} handles communication between master nodes. A \textbf{snapshot mechanism} periodically serializes the cluster state for faster recovery when a new master joins or an existing one restarts.
 
-The first master node is started with the \texttt{-raft-bootstrap} flag to initialize the cluster. It must also know about the other masters through the \texttt{-raft-peers} flag, which takes a comma-separated list of peer IDs and addresses in the format \texttt{id=host:port}. The other masters are started without \texttt{-raft-bootstrap} and will automatically join the cluster when the leader contacts them. The master exposes flags for configuration: \texttt{-raft-addr}, \texttt{-raft-id}, \texttt{-raft-dir}, \texttt{-raft-bootstrap} and \texttt{-raft-peers}.
+The first master node is started with the \texttt{-raft-bootstrap} flag to initialize the cluster. It must also know about the other masters through the \texttt{-raft-peers} flag, which takes a comma-separated list of peer IDs and addresses in the format \texttt{id=host:port}. The other masters are started without \texttt{-raft-bootstrap} and will automatically join the cluster when the leader contacts them. The master exposes flags for configuration: \texttt{-raft-addr}, \texttt{-raft-id}, \texttt{-raft-dir}, \texttt{-raft-bootstrap}, \texttt{-raft-peers} and \texttt{-peers-api} (the API addresses of all masters, used to forward write requests to the leader).
 
 Each master stores its Raft data in a separate directory (\texttt{-raft-dir}), which contains the BoltDB log file (\texttt{raft.db}) and periodic snapshots. When a master restarts, Raft reads the log from disk and replays it through the FSM to reconstruct the cluster state.
 
-State changes that go through Raft (AddService, RemoveService, AddContainer) are written to the cluster state only by the FSM, so the API does not modify the state directly. This ensures that all masters apply the same operations in the same order. Heartbeats and node metrics do not go through Raft because they are ephemeral and each master receives them independently via UDP multicast and updates its local state every 5 seconds.
+State changes that go through Raft (AddService, RemoveService, AddContainer, SetContainerStatus) are written to the cluster state only by the FSM. Neither the API nor the fault recovery modifies replicated data directly; both submit log entries through the leader. This ensures that all masters apply the same operations in the same order. Heartbeats and node metrics do not go through Raft because they are ephemeral and each master receives them independently via UDP multicast and updates its local state every 5 seconds.
 
 \subsection{Cluster Deployment Topology}
 
@@ -445,7 +450,7 @@ State changes that go through Raft (AddService, RemoveService, AddContainer) are
     \label{fig:topology}
 \end{figure}
 
-The cluster consists of 3 master nodes forming a Raft quorum. Master 1 is the leader, exposing the REST API on port 8090 and the heartbeat receiver on UDP port 9090. Masters 2 and 3 are followers that replicate state via Raft. Worker nodes are organized in resource pools and send heartbeats via UDP multicast to the master. Users connect to the master's REST API using JWT authentication.
+The cluster consists of 3 master nodes forming a Raft quorum. Master 1 is the leader. Every master exposes the REST API (ports 8090--8092) and listens for heartbeats on UDP port 9090; write requests sent to a follower are forwarded to the leader. Masters 2 and 3 replicate state via Raft. Worker nodes are organized in resource pools and send heartbeats via UDP multicast to the master. Users connect to the master's REST API using JWT authentication.
 
 \subsection{Audit Log}
 
@@ -505,27 +510,34 @@ To start a cluster with a single master, open three separate terminals:
 To start a cluster with 3 masters for high availability, open five terminals. The first master must know about the other two through the \texttt{-raft-peers} flag:
 
 \begin{verbatim}
+# API address map, shared by all masters
+PEERS_API="master-1=localhost:8090,\
+master-2=localhost:8091,master-3=localhost:8092"
+
 # Terminal 1: master-1 (leader, knows about peers)
 ./bin/master -raft-bootstrap \
   -raft-id master-1 -raft-addr localhost:9001 \
   -raft-dir /tmp/dcp-raft/m1 -api :8090 \
-  -raft-peers "master-2=localhost:9002,master-3=localhost:9003"
+  -raft-peers "master-2=localhost:9002,master-3=localhost:9003" \
+  -peers-api "$PEERS_API"
 
 # Terminal 2: master-2 (follower)
 ./bin/master -raft-id master-2 \
   -raft-addr localhost:9002 \
-  -raft-dir /tmp/dcp-raft/m2 -api :8091
+  -raft-dir /tmp/dcp-raft/m2 -api :8091 \
+  -peers-api "$PEERS_API"
 
 # Terminal 3: master-3 (follower)
 ./bin/master -raft-id master-3 \
   -raft-addr localhost:9003 \
-  -raft-dir /tmp/dcp-raft/m3 -api :8092
+  -raft-dir /tmp/dcp-raft/m3 -api :8092 \
+  -peers-api "$PEERS_API"
 
 # Terminal 4: worker
 ./bin/worker -id worker-1 -addr localhost:7001
 \end{verbatim}
 
-Once all masters are running, master-1 wins the election and becomes leader. If master-1 is stopped, one of the remaining masters will win a new election and become leader within 1 second. The worker continues to send heartbeats to all masters via UDP multicast, so all masters see the same nodes.
+Once all masters are running, master-1 wins the election and becomes leader. If master-1 is stopped, one of the remaining masters will win a new election and become leader within 1 second. The worker continues to send heartbeats to all masters via UDP multicast, so all masters see the same nodes. Requests can be sent to any master's API (8090, 8091 or 8092): reads are answered locally and writes are forwarded to the current leader, so the same address keeps working after a leader change.
 
 The master starts listening for heartbeats on UDP port 9090 and serves the REST API on TCP port 8090. Workers are discovered automatically within 5 seconds. To deploy a service:
 
@@ -541,3 +553,36 @@ curl -X POST http://localhost:8090/services \
        "cpu":0.5,"ram":256,"replicas":1,
        "pool":"high-cpu"}'
 \end{verbatim}
+
+The login response contains an \texttt{accessToken} that must be placed in the \texttt{Authorization} header of every following request. The deploy response returns the service ID and, for each replica, the container ID, the node it was placed on and its status.
+
+Once one or more services are running, the read endpoints show the state of the cluster. They require only a valid token (any role, including READER) and can be sent to any master:
+
+\begin{verbatim}
+# List all worker nodes with their status and live metrics
+curl -H "Authorization: Bearer <TOKEN>" \
+  http://localhost:8090/nodes
+
+# List the resource pools and the nodes assigned to each
+curl -H "Authorization: Bearer <TOKEN>" \
+  http://localhost:8090/pools
+
+# List the deployed services and their running replica count
+curl -H "Authorization: Bearer <TOKEN>" \
+  http://localhost:8090/services
+
+# Read the audit log, optionally filtered by action or user
+curl -H "Authorization: Bearer <TOKEN>" \
+  "http://localhost:8090/audit?action=SERVICE_CREATE"
+\end{verbatim}
+
+The \texttt{/nodes} endpoint is the quickest way to confirm that the cluster works: each worker appears with status ALIVE, its total and used CPU and RAM and the containers currently running on it. After deploying a service, the same call shows the new container in the RUNNING state on the chosen node. A service is removed, together with its containers, with a single request:
+
+\begin{verbatim}
+# Delete a service and stop all its containers
+curl -X DELETE \
+  -H "Authorization: Bearer <TOKEN>" \
+  http://localhost:8090/services/<serviceID>
+\end{verbatim}
+
+To see fault tolerance in action, stop a worker that runs containers (for example with Ctrl+C). After about 30 seconds the master marks it DEAD and a call to \texttt{/nodes} shows its containers restarted on another worker. When the stopped worker is started again, the master sends it a KillContainers command so that no duplicate containers remain.

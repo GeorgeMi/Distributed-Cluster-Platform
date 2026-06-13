@@ -31,7 +31,8 @@ func main() {
 	raftID := flag.String("raft-id", "master-1", "Raft node ID")
 	raftDir := flag.String("raft-dir", "/tmp/dcp-raft", "Raft data directory")
 	raftBootstrap := flag.Bool("raft-bootstrap", false, "bootstrap Raft cluster")
-	raftPeers := flag.String("raft-peers", "", "comma-separated list of peer addresses (id:addr,id:addr)")
+	raftPeers := flag.String("raft-peers", "", "comma-separated list of peer addresses (id=host:port,...)")
+	peersAPI := flag.String("peers-api", "", "comma-separated list of master API addresses (id=host:port,...) used to forward write requests to the leader")
 	flag.Parse()
 
 	log.Printf("master starting, api=%s, heartbeats=%s, lb=%s, raft=%s", *apiAddr, *multicast, *lbStrategy, *raftAddr)
@@ -55,7 +56,6 @@ func main() {
 		}
 	}
 
-	// Raft consensus
 	raftNode, err := cluster.NewRaftNode(cluster.RaftConfig{
 		NodeID:    *raftID,
 		BindAddr:  *raftAddr,
@@ -66,19 +66,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("raft: %v", err)
 	}
-	// JWT manager
 	jwtManager := security.NewJWTManager("super-secret-key", 15*time.Minute, 24*time.Hour)
 
-	// Default users
 	state.AddUser(&domain.User{ID: "u1", Username: "admin", Role: domain.RoleAdmin, TokenHash: fmt.Sprintf("%x", sha256.Sum256([]byte("admin")))})
 	state.AddUser(&domain.User{ID: "u2", Username: "writer", Role: domain.RoleWriter, TokenHash: fmt.Sprintf("%x", sha256.Sum256([]byte("writer")))})
 	state.AddUser(&domain.User{ID: "u3", Username: "reader", Role: domain.RoleReader, TokenHash: fmt.Sprintf("%x", sha256.Sum256([]byte("reader")))})
 
-	// Default resource pools
+	// Default resource pools (disjoint ranges, so every node matches exactly one pool)
+	state.AddPool(&domain.ResourcePool{ID: "general", Name: "general", MinCPU: 0, MaxCPU: 3, MinRAM: 0, MaxRAM: 32768})
 	state.AddPool(&domain.ResourcePool{ID: "high-cpu", Name: "high-cpu", MinCPU: 4, MaxCPU: 128, MinRAM: 0, MaxRAM: 32768})
 	state.AddPool(&domain.ResourcePool{ID: "high-ram", Name: "high-ram", MinCPU: 0, MaxCPU: 128, MinRAM: 32769, MaxRAM: 1048576})
 
-	// Load balancer
 	var lb loadbalancer.LoadBalancer
 	switch *lbStrategy {
 	case "weighted":
@@ -87,88 +85,158 @@ func main() {
 		lb = &loadbalancer.LeastConnectionsLB{}
 	}
 
-	// Scheduler
 	sched := scheduler.NewScheduler(state, lb)
 
-	// Audit logger
 	auditLog := audit.NewLogger(state)
 
-	// Fault tolerance with recovery via scheduler
+	// Replicated container status updates (leader only)
+	applyContainerStatus := func(containerID, status string) {
+		if err := raftNode.Apply(cluster.LogSetContainerStatus, map[string]string{"id": containerID, "status": status}); err != nil {
+			log.Printf("raft: apply SetContainerStatus: %v", err)
+		}
+	}
+
+	startOn := func(svc *domain.Service, node *domain.Node) (string, error) {
+		resp, err := agent.SendCommand(node.Address, agent.Command{
+			Type:      agent.CmdStartContainer,
+			ServiceID: svc.ID,
+			Image:     svc.Image,
+			CPULimit:  svc.RequiredCPU,
+			RAMLimit:  svc.RequiredRAM,
+			EnvVars:   svc.EnvVars,
+			Ports:     svc.Ports,
+			Cmd:       svc.Cmd,
+		})
+		if err != nil {
+			return "", err
+		}
+		if !resp.Success {
+			return "", fmt.Errorf("worker %s: %s", node.ID, resp.Error)
+		}
+		return resp.ContainerID, nil
+	}
+
+	startReplica := func(svc *domain.Service) (string, string, error) {
+		node, err := sched.Schedule(svc)
+		if err != nil {
+			return "", "", err
+		}
+		dockerID, err := startOn(svc, node)
+		if err != nil {
+			return "", "", err
+		}
+		return node.ID, dockerID, nil
+	}
+
 	ft := fault.NewTolerance(
 		state,
 		5*time.Second,  // check every 5s
 		15*time.Second, // suspect after 15s
 		30*time.Second, // dead after 30s
+		raftNode.IsLeader,
+		applyContainerStatus,
 		func(nodeID string, containers []*domain.Container) {
 			if !raftNode.IsLeader() {
 				return
 			}
 			log.Printf("recovery: node %s died with %d container(s)", nodeID, len(containers))
 			auditLog.Log("system", audit.EventNodeDead, nodeID, fmt.Sprintf("node died with %d containers", len(containers)))
-			// Node status already set by fault tolerance; no duplicate Raft apply needed
 			for _, c := range containers {
-				// Mark container as rescheduling
-				state.SetContainerStatus(c.ID, domain.ContainerRescheduling)
+				applyContainerStatus(c.ID, domain.ContainerRescheduling)
 
 				svc, ok := state.GetService(c.ServiceID)
 				if !ok {
 					log.Printf("recovery: service %s not found, skipping container %s", c.ServiceID, c.ID)
 					continue
 				}
-				node, err := sched.Schedule(svc)
+				newNodeID, dockerID, err := startReplica(svc)
 				if err != nil {
 					log.Printf("recovery: cannot reschedule service %s: %v", svc.Name, err)
-					state.SetContainerStatus(c.ID, domain.ContainerPending)
+					applyContainerStatus(c.ID, domain.ContainerPending)
 					continue
 				}
-				resp, err := agent.SendCommand(node.Address, agent.Command{
-					Type:      agent.CmdStartContainer,
-					ServiceID: svc.ID,
-					Image:     svc.Image,
-					CPULimit:  svc.RequiredCPU,
-					RAMLimit:  svc.RequiredRAM,
-					EnvVars:   svc.EnvVars,
-					Ports:     svc.Ports,
-					Cmd:       svc.Cmd,
-				})
-				if err != nil {
-					log.Printf("recovery: failed to start container on %s: %v", node.ID, err)
-					state.SetContainerStatus(c.ID, domain.ContainerPending)
-					continue
-				}
-				// Mark old container as stopped
-				state.SetContainerStatus(c.ID, domain.ContainerStopped)
-				// Create new container entry on the new node
+				applyContainerStatus(c.ID, domain.ContainerStopped)
 				newContainer := &domain.Container{
 					ID:        fmt.Sprintf("ctr-%d", time.Now().UnixNano()),
 					ServiceID: svc.ID,
-					NodeID:    node.ID,
-					DockerID:  resp.ContainerID,
+					NodeID:    newNodeID,
+					DockerID:  dockerID,
 					Status:    domain.ContainerRunning,
 				}
-				if raftNode.IsLeader() {
-					raftNode.Apply(cluster.LogAddContainer, newContainer)
-				} else {
-					state.AddContainer(newContainer)
+				if err := raftNode.Apply(cluster.LogAddContainer, newContainer); err != nil {
+					log.Printf("recovery: apply AddContainer: %v", err)
+					continue
 				}
-				auditLog.Log("system", audit.EventContainerRescheduled, c.ID, fmt.Sprintf("rescheduled to node %s as %s", node.ID, newContainer.ID))
-				log.Printf("recovery: container %s rescheduled to node %s as %s", c.ID, node.ID, newContainer.ID)
+				auditLog.Log("system", audit.EventContainerRescheduled, c.ID, fmt.Sprintf("rescheduled to node %s as %s", newNodeID, newContainer.ID))
+				log.Printf("recovery: container %s rescheduled to node %s as %s", c.ID, newNodeID, newContainer.ID)
 			}
 		},
 	)
 	go ft.Start()
 
-	// Heartbeat receiver with split-brain handler
+	// Retry loop: PENDING containers of a service are scheduled again, all-or-nothing.
+	go func() {
+		for {
+			time.Sleep(10 * time.Second)
+			if !raftNode.IsLeader() {
+				continue
+			}
+			byService := make(map[string][]*domain.Container)
+			for _, c := range state.GetContainersByStatus(domain.ContainerPending) {
+				byService[c.ServiceID] = append(byService[c.ServiceID], c)
+			}
+			for svcID, group := range byService {
+				svc, ok := state.GetService(svcID)
+				if !ok {
+					continue
+				}
+				plan, err := sched.Plan(svc, len(group))
+				if err != nil {
+					continue
+				}
+				for i, c := range group {
+					node := plan[i]
+					dockerID, err := startOn(svc, node)
+					if err != nil {
+						log.Printf("retry: failed to start container %s: %v", c.ID, err)
+						continue
+					}
+					updated := &domain.Container{
+						ID:        c.ID,
+						ServiceID: c.ServiceID,
+						NodeID:    node.ID,
+						DockerID:  dockerID,
+						Status:    domain.ContainerRunning,
+					}
+					if err := raftNode.Apply(cluster.LogAddContainer, updated); err != nil {
+						log.Printf("retry: apply AddContainer: %v", err)
+						continue
+					}
+					log.Printf("retry: pending container %s started on node %s", c.ID, node.ID)
+				}
+			}
+		}
+	}()
+
 	receiver := heartbeat.NewReceiver(*multicast, state, ft.HandleLateHeartbeat, func(nodeID string) {
 		auditLog.Log("system", audit.EventNodeDiscovered, nodeID, "node discovered via first heartbeat")
 	})
 	go receiver.Start()
 
-	// REST API
-	apiServer := api.NewServer(*apiAddr, state, sched, jwtManager, auditLog, raftNode)
+	// API addresses of all masters (raft ID -> host:port), for leader forwarding
+	apiPeers := make(map[string]string)
+	if *peersAPI != "" {
+		for _, p := range strings.Split(*peersAPI, ",") {
+			parts := strings.SplitN(p, "=", 2)
+			if len(parts) == 2 {
+				apiPeers[parts[0]] = parts[1]
+			}
+		}
+	}
+
+	apiServer := api.NewServer(*apiAddr, state, sched, jwtManager, auditLog, raftNode, apiPeers)
 	go apiServer.Start()
 
-	// Print cluster status every 10s
 	go func() {
 		for {
 			time.Sleep(10 * time.Second)

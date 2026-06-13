@@ -18,14 +18,9 @@ type LogEntry struct {
 
 // Log entry types
 const (
-	LogAddNode            = "AddNode"
-	LogRemoveNode         = "RemoveNode"
-	LogSetNodeStatus      = "SetNodeStatus"
 	LogAddService         = "AddService"
 	LogRemoveService      = "RemoveService"
-	LogSetServiceReplicas = "SetServiceReplicas"
 	LogAddContainer       = "AddContainer"
-	LogRemoveContainer    = "RemoveContainer"
 	LogSetContainerStatus = "SetContainerStatus"
 )
 
@@ -47,28 +42,6 @@ func (f *FSM) Apply(l *raft.Log) any {
 	}
 
 	switch entry.Type {
-	case LogAddNode:
-		var node domain.Node
-		json.Unmarshal(entry.Data, &node)
-		f.state.AddNode(&node)
-		f.state.AssignNodeToPool(node.ID, &node)
-		log.Printf("fsm: apply AddNode %s", node.ID)
-
-	case LogRemoveNode:
-		var args struct {
-			ID string `json:"id"`
-		}
-		json.Unmarshal(entry.Data, &args)
-		f.state.RemoveNode(args.ID)
-
-	case LogSetNodeStatus:
-		var args struct {
-			ID     string `json:"id"`
-			Status string `json:"status"`
-		}
-		json.Unmarshal(entry.Data, &args)
-		f.state.SetNodeStatus(args.ID, args.Status)
-
 	case LogAddService:
 		var svc domain.Service
 		json.Unmarshal(entry.Data, &svc)
@@ -82,25 +55,10 @@ func (f *FSM) Apply(l *raft.Log) any {
 		json.Unmarshal(entry.Data, &args)
 		f.state.RemoveService(args.ID)
 
-	case LogSetServiceReplicas:
-		var args struct {
-			ID       string `json:"id"`
-			Replicas int    `json:"replicas"`
-		}
-		json.Unmarshal(entry.Data, &args)
-		f.state.SetServiceReplicas(args.ID, args.Replicas)
-
 	case LogAddContainer:
 		var c domain.Container
 		json.Unmarshal(entry.Data, &c)
 		f.state.AddContainer(&c)
-
-	case LogRemoveContainer:
-		var args struct {
-			ID string `json:"id"`
-		}
-		json.Unmarshal(entry.Data, &args)
-		f.state.RemoveContainer(args.ID)
 
 	case LogSetContainerStatus:
 		var args struct {

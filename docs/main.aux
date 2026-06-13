@@ -60,6 +60,10 @@
 \@writefile{toc}{\contentsline {section}{\numberline {2.4}Expected Characteristics}{5}{section.2.4}\protected@file@percent }
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {section}{\numberline {2.5}Conclusions}{6}{section.2.5}\protected@file@percent }
+\citation{misc:web:docker:sdk}
+\citation{misc:web:hashicorp:raft}
+\citation{misc:rfc7519}
+\citation{misc:web:golang:jwt}
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {chapter}{\numberline {3}Proposed Solution}{7}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
@@ -146,8 +150,8 @@
 \@writefile{toc}{\contentsline {section}{\numberline {4.1}Unit Tests}{27}{section.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Load Balancer Tests}{27}{subsection.4.1.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Scheduler Tests}{27}{subsection.4.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}ACL Tests}{27}{subsection.4.1.3}\protected@file@percent }
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}ACL Tests}{28}{subsection.4.1.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.4}Results}{28}{subsection.4.1.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4.2}Manual Testing}{28}{section.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Node Discovery and Heartbeats}{28}{subsection.4.2.1}\protected@file@percent }
@@ -164,11 +168,14 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2.4}Security: Role-Based Access Control}{30}{subsection.4.2.4}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Security: reader denied, admin allowed}}{30}{figure.caption.18}\protected@file@percent }
 \newlabel{fig:test_security}{{4.4}{30}{Security: reader denied, admin allowed}{figure.caption.18}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.5}Audit Log}{30}{subsection.4.2.5}\protected@file@percent }
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.5}Audit Log}{31}{subsection.4.2.5}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Audit log with recorded events}}{31}{figure.caption.19}\protected@file@percent }
 \newlabel{fig:test_audit}{{4.5}{31}{Audit log with recorded events}{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Timing and Performance Characteristics}{31}{section.4.3}\protected@file@percent }
 \def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Measured timing of the main operations}}{32}{table.caption.20}\protected@file@percent }
+\newlabel{tab:timing}{{4.1}{32}{Measured timing of the main operations}{table.caption.20}{}}
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusions}{33}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
@@ -177,9 +184,9 @@
 \newlabel{cap:cap5}{{5}{33}{Conclusions}{chapter.5}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.1}Achieved Objectives}{33}{section.5.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5.2}Comparison with Similar Solutions}{33}{section.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Future Work}{33}{section.5.3}\protected@file@percent }
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {5.4}Lessons Learned}{34}{section.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Future Work}{34}{section.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Final Remarks}{34}{section.5.4}\protected@file@percent }
 \bibstyle{IEEEtran}
 \bibdata{bibliografie/bibliografie}
 \bibcite{book:tanenbaum:ds:2017}{1}
@@ -190,95 +197,49 @@
 \bibcite{misc:web:kubernetes}{6}
 \bibcite{misc:web:docker:swarm}{7}
 \bibcite{misc:web:nomad}{8}
+\bibcite{misc:web:docker:sdk}{9}
+\bibcite{misc:web:hashicorp:raft}{10}
+\bibcite{misc:rfc7519}{11}
+\bibcite{misc:web:golang:jwt}{12}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {chapter}{Bibliografie}{35}{chapter*.20}\protected@file@percent }
-\def\@LN@column{1}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {chapter}{Annexes}{37}{chapter*.21}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {1}Domain Models}{37}{section.0.1}\protected@file@percent }
-\newlabel{anexa1:domain}{{1}{37}{Domain Models}{section.0.1}{}}
-\def\@LN@column{1}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {1}{\ignorespaces internal/domain/models.go -- Data models}}{39}{listing.caption.22}\protected@file@percent }
-\newlabel{code:models}{{1}{39}{internal/domain/models.go -- Data models}{listing.caption.22}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Cluster State}{40}{section.0.2}\protected@file@percent }
-\newlabel{anexa2:state}{{2}{40}{Cluster State}{section.0.2}{}}
+\@writefile{toc}{\contentsline {chapter}{Bibliografie}{35}{chapter*.21}\protected@file@percent }
 \def\@LN@column{1}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {chapter}{Annexes}{37}{chapter*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Heartbeat Receiver}{37}{section.0.1}\protected@file@percent }
+\newlabel{anexa1:receiver}{{1}{37}{Heartbeat Receiver}{section.0.1}{}}
 \def\@LN@column{1}
 \def\@LN@column{1}
-\def\@LN@column{1}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {2}{\ignorespaces internal/cluster/state.go -- In-memory cluster state}}{46}{listing.caption.23}\protected@file@percent }
-\newlabel{code:state}{{2}{46}{internal/cluster/state.go -- In-memory cluster state}{listing.caption.23}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Heartbeat Receiver}{47}{section.0.3}\protected@file@percent }
-\newlabel{anexa3:receiver}{{3}{47}{Heartbeat Receiver}{section.0.3}{}}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {3}{\ignorespaces internal/heartbeat/receiver.go -- UDP multicast receiver with auto-join}}{48}{listing.caption.24}\protected@file@percent }
-\newlabel{code:receiver}{{3}{48}{internal/heartbeat/receiver.go -- UDP multicast receiver with auto-join}{listing.caption.24}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Fault Tolerance}{49}{section.0.4}\protected@file@percent }
-\newlabel{anexa4:fault}{{4}{49}{Fault Tolerance}{section.0.4}{}}
-\def\@LN@column{1}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {4}{\ignorespaces internal/fault/tolerance.go -- Failure detection and recovery}}{51}{listing.caption.25}\protected@file@percent }
-\newlabel{code:fault}{{4}{51}{internal/fault/tolerance.go -- Failure detection and recovery}{listing.caption.25}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Load Balancer}{52}{section.0.5}\protected@file@percent }
-\newlabel{anexa5:loadbalancer}{{5}{52}{Load Balancer}{section.0.5}{}}
-\@writefile{lol}{\contentsline {listing}{\numberline {5}{\ignorespaces internal/loadbalancer/balancer.go -- LoadBalancer interface}}{52}{listing.caption.26}\protected@file@percent }
-\newlabel{code:lb_interface}{{5}{52}{internal/loadbalancer/balancer.go -- LoadBalancer interface}{listing.caption.26}{}}
-\@writefile{lol}{\contentsline {listing}{\numberline {6}{\ignorespaces internal/loadbalancer/leastconn.go -- Least Connections strategy}}{52}{listing.caption.27}\protected@file@percent }
-\newlabel{code:lb_leastconn}{{6}{52}{internal/loadbalancer/leastconn.go -- Least Connections strategy}{listing.caption.27}{}}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {7}{\ignorespaces internal/loadbalancer/weighted.go -- Weighted strategy}}{53}{listing.caption.28}\protected@file@percent }
-\newlabel{code:lb_weighted}{{7}{53}{internal/loadbalancer/weighted.go -- Weighted strategy}{listing.caption.28}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Scheduler}{54}{section.0.6}\protected@file@percent }
-\newlabel{anexa6:scheduler}{{6}{54}{Scheduler}{section.0.6}{}}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {8}{\ignorespaces internal/scheduler/scheduler.go -- Node selection by pool and resources}}{55}{listing.caption.29}\protected@file@percent }
-\newlabel{code:scheduler}{{8}{55}{internal/scheduler/scheduler.go -- Node selection by pool and resources}{listing.caption.29}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {7}REST API Server}{56}{section.0.7}\protected@file@percent }
-\newlabel{anexa7:api}{{7}{56}{REST API Server}{section.0.7}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {1}{\ignorespaces internal/heartbeat/receiver.go -- UDP multicast receiver with auto-join}}{39}{listing.caption.23}\protected@file@percent }
+\newlabel{code:receiver}{{1}{39}{internal/heartbeat/receiver.go -- UDP multicast receiver with auto-join}{listing.caption.23}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Fault Tolerance}{39}{section.0.2}\protected@file@percent }
+\newlabel{anexa2:fault}{{2}{39}{Fault Tolerance}{section.0.2}{}}
 \def\@LN@column{1}
 \def\@LN@column{1}
 \def\@LN@column{1}
+\@writefile{lol}{\contentsline {listing}{\numberline {2}{\ignorespaces internal/fault/tolerance.go -- Failure detection and recovery}}{42}{listing.caption.24}\protected@file@percent }
+\newlabel{code:fault}{{2}{42}{internal/fault/tolerance.go -- Failure detection and recovery}{listing.caption.24}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Load Balancer}{42}{section.0.3}\protected@file@percent }
+\newlabel{anexa3:loadbalancer}{{3}{42}{Load Balancer}{section.0.3}{}}
+\@writefile{lol}{\contentsline {listing}{\numberline {3}{\ignorespaces internal/loadbalancer/balancer.go -- LoadBalancer interface}}{42}{listing.caption.25}\protected@file@percent }
+\newlabel{code:lb_interface}{{3}{42}{internal/loadbalancer/balancer.go -- LoadBalancer interface}{listing.caption.25}{}}
+\def\@LN@column{1}
+\@writefile{lol}{\contentsline {listing}{\numberline {4}{\ignorespaces internal/loadbalancer/leastconn.go -- Least Connections strategy}}{43}{listing.caption.26}\protected@file@percent }
+\newlabel{code:lb_leastconn}{{4}{43}{internal/loadbalancer/leastconn.go -- Least Connections strategy}{listing.caption.26}{}}
+\def\@LN@column{1}
+\@writefile{lol}{\contentsline {listing}{\numberline {5}{\ignorespaces internal/loadbalancer/weighted.go -- Weighted strategy}}{44}{listing.caption.27}\protected@file@percent }
+\newlabel{code:lb_weighted}{{5}{44}{internal/loadbalancer/weighted.go -- Weighted strategy}{listing.caption.27}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Scheduler}{44}{section.0.4}\protected@file@percent }
+\newlabel{anexa4:scheduler}{{4}{44}{Scheduler}{section.0.4}{}}
 \def\@LN@column{1}
 \def\@LN@column{1}
+\@writefile{lol}{\contentsline {listing}{\numberline {6}{\ignorespaces internal/scheduler/scheduler.go -- All-or-nothing replica planning}}{46}{listing.caption.28}\protected@file@percent }
+\newlabel{code:scheduler}{{6}{46}{internal/scheduler/scheduler.go -- All-or-nothing replica planning}{listing.caption.28}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Raft FSM}{46}{section.0.5}\protected@file@percent }
+\newlabel{anexa5:raft}{{5}{46}{Raft FSM}{section.0.5}{}}
 \def\@LN@column{1}
 \def\@LN@column{1}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {9}{\ignorespaces internal/api/server.go -- REST API with JWT middleware}}{64}{listing.caption.30}\protected@file@percent }
-\newlabel{code:api}{{9}{64}{internal/api/server.go -- REST API with JWT middleware}{listing.caption.30}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Security -- JWT and ACL}{65}{section.0.8}\protected@file@percent }
-\newlabel{anexa8:security}{{8}{65}{Security -- JWT and ACL}{section.0.8}{}}
-\def\@LN@column{1}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {10}{\ignorespaces internal/security/jwt.go -- JWT token generation and validation}}{67}{listing.caption.31}\protected@file@percent }
-\newlabel{code:jwt}{{10}{67}{internal/security/jwt.go -- JWT token generation and validation}{listing.caption.31}{}}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {11}{\ignorespaces internal/security/acl.go -- Role-based access control}}{68}{listing.caption.32}\protected@file@percent }
-\newlabel{code:acl}{{11}{68}{internal/security/acl.go -- Role-based access control}{listing.caption.32}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Docker Integration}{69}{section.0.9}\protected@file@percent }
-\newlabel{anexa9:docker}{{9}{69}{Docker Integration}{section.0.9}{}}
-\def\@LN@column{1}
-\def\@LN@column{1}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {12}{\ignorespaces internal/agent/docker.go -- Docker container management}}{72}{listing.caption.33}\protected@file@percent }
-\newlabel{code:docker}{{12}{72}{internal/agent/docker.go -- Docker container management}{listing.caption.33}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Raft FSM}{73}{section.0.10}\protected@file@percent }
-\newlabel{anexa10:raft}{{10}{73}{Raft FSM}{section.0.10}{}}
-\def\@LN@column{1}
-\def\@LN@column{1}
-\@writefile{lol}{\contentsline {listing}{\numberline {13}{\ignorespaces internal/cluster/fsm.go -- Raft Finite State Machine}}{75}{listing.caption.34}\protected@file@percent }
-\newlabel{code:fsm}{{13}{75}{internal/cluster/fsm.go -- Raft Finite State Machine}{listing.caption.34}{}}
-\def\@LN@column{1}
-\xdef \mintedoldcachechecksum{\detokenize{1E93DB0CE8C21CD20B0A1263246DFC36:14}}
-\gdef \@abspage@last{86}
+\@writefile{lol}{\contentsline {listing}{\numberline {7}{\ignorespaces internal/cluster/fsm.go -- Raft Finite State Machine}}{48}{listing.caption.29}\protected@file@percent }
+\newlabel{code:fsm}{{7}{48}{internal/cluster/fsm.go -- Raft Finite State Machine}{listing.caption.29}{}}
+\xdef \mintedoldcachechecksum{\detokenize{85D91D50C8242B2C89E2C64F5B93C060:8}}
+\gdef \@abspage@last{58}

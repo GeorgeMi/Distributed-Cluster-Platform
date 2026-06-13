@@ -131,8 +131,9 @@ func (rn *RaftNode) IsLeader() bool {
 	return rn.raft.State() == raft.Leader
 }
 
-// LeaderAddress returns the address of the current leader.
-func (rn *RaftNode) LeaderAddress() string {
-	addr, _ := rn.raft.LeaderWithID()
-	return string(addr)
+// Leader returns the Raft address and the ID of the current leader.
+// Both are empty strings while no leader is elected.
+func (rn *RaftNode) Leader() (string, string) {
+	addr, id := rn.raft.LeaderWithID()
+	return string(addr), string(id)
 }

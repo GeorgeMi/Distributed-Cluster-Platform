@@ -2,8 +2,7 @@ package loadbalancer
 
 import "github.com/GeorgeMi/Distributed-Cluster-Platform/internal/domain"
 
-// WeightedLB picks the node with the most available resources.
-// Score is computed as a weighted score between available CPU and available RAM.
+// WeightedLB picks the node with the highest combined free-CPU and free-RAM score.
 type WeightedLB struct{}
 
 func (lb *WeightedLB) SelectNode(candidates []*domain.Node, service *domain.Service) *domain.Node {
@@ -23,8 +22,7 @@ func (lb *WeightedLB) SelectNode(candidates []*domain.Node, service *domain.Serv
 	return best
 }
 
-// score computes a weighted score between available CPU and available RAM.
-// Both are normalized to a 0-1 range (percentage of total) so they contribute equally.
+// score normalizes free CPU and free RAM to a 0-1 range so they weigh equally.
 func score(n *domain.Node) float64 {
 	var cpuScore, ramScore float64
 	if n.TotalCPU > 0 {
